@@ -7,6 +7,17 @@ Config = {}
 Config.hour = 18
 Config.minute = 30
 Config.weather = 'EXTRASUNNY'   -- try CLEAR, CLOUDS, SMOG, FOGGY, RAIN, THUNDER
+-- true = the time continues from where you left off when you log back in
+-- (Config.hour and Config.minute above are only the very first start)
+Config.saveClock = true
+-- true = the weather changes on its own every few minutes, false = it stays on Config.weather.
+-- the list below is the pool it picks from. a name listed twice is picked more often.
+Config.weatherCycle = true
+Config.weatherEvery = 600000    -- real milliseconds between changes (600000 = 10 minutes)
+Config.weatherPool = {
+    'EXTRASUNNY', 'EXTRASUNNY', 'EXTRASUNNY', 'CLEAR', 'CLEAR', 'CLEAR',
+    'CLOUDS', 'CLOUDS', 'OVERCAST', 'RAIN', 'THUNDER', 'FOGGY',
+}
 -- how long one game minute lasts in real milliseconds.
 -- 2000 is the game's normal speed, a bigger number is slower, 0 freezes the clock.
 Config.msPerGameMinute = 2000
@@ -104,7 +115,8 @@ Config.pickups = {
     { kind = 'health', x = -1846.0, y = -1226.0,  z = 13.0 },    -- the pier
 }
 Config.pickupCash = 250         -- what a cash pickup gives
-Config.pickupRespawn = 60000    -- how long until a pickup comes back (milliseconds)
+Config.pickupRespawn = 60000    -- how long until a health or armor pickup comes back (milliseconds)
+Config.pickupCashRespawn = 1800000   -- cash comes back much slower (30 minutes), or it is a money farm
 
 -- safehouses: places to rest (press E). make more with /setsafehouse.
 Config.safehouses = {

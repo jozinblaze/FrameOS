@@ -2,6 +2,17 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.0.0 - Player and world review pass
+- Help prompts draw for one frame only, so they vanish as soon as you leave range (the ghost motel prompt)
+- Dying clears your wanted level
+- Loading saved state waits for the ground (FrameOS.placePed) so you cannot fall through the map
+- Saving keeps your last grounded spot instead of a mid-air one
+- HUD refreshes street name and watch twice a second instead of every frame
+- Game clock is saved and continues on relog (Config.saveClock)
+- Weather cycle from a pool (Config.weatherCycle, weatherPool, weatherEvery)
+- Resting at a safehouse saves your state
+- Cash pickup comes back after 30 minutes (Config.pickupCashRespawn)
+
 ## 0.9.0 - Shops and vehicle ownership review pass
 - Shops close when you die and only open while you are on foot
 - /sellcar needs confirm on the end

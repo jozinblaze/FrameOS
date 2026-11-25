@@ -10,9 +10,27 @@
 -- we don't save until you've fully spawned in, or we'd save a half-loaded ped
 local spawned = false
 
+-- the last place you stood on the ground. if you're falling, flying or
+-- parachuting when the save runs, this is saved instead of a spot in mid-air.
+local ground = nil
+
+local function inAir()
+    local ped = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(ped, false)
+    local thing = ped
+    if vehicle ~= 0 then
+        thing = vehicle
+    end
+    return IsEntityInAir(thing) or IsPedFalling(ped) or GetPedParachuteState(ped) >= 0
+end
+
 local function saveNow()
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
+    if not ground or not inAir() then
+        ground = coords
+    end
+    coords = ground
     local snap = FrameOS.snapshot(true)   -- true = leave out trunk weapons
 
     FrameOS.save('state', {
@@ -24,6 +42,13 @@ local function saveNow()
         y = coords.y,
         z = coords.z,
     })
+end
+
+-- other modules (like resting at a safehouse) can save right now with this
+function FrameOS.saveState()
+    if spawned and not IsEntityDead(PlayerPedId()) then
+        saveNow()
+    end
 end
 
 -- save on a timer
@@ -55,8 +80,10 @@ FrameOS.onSpawn(function()
         -- ped and clothes first (this also changes the model if needed)
         FrameOS.wearOutfit(saved.outfit)
 
-        SetEntityCoords(PlayerPedId(), saved.x, saved.y, saved.z, false, false, false, false)
+        -- waits for the ground to load first, so you don't fall through the map
+        FrameOS.placePed(saved.x, saved.y, saved.z)
         FrameOS.restore(saved)
+        ground = vector3(saved.x, saved.y, saved.z)
     end
     spawned = true
 end)

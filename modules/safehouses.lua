@@ -44,9 +44,12 @@ local function rest()
     SetPedArmour(ped, 100)
     ClearPlayerWantedLevel(PlayerId())
 
+    -- resting is a save point
+    FrameOS.saveState()
+
     Wait(400)
     DoScreenFadeIn(600)
-    FrameOS.notify('Rested')
+    FrameOS.notify('Rested and saved')
 end
 
 -- moves you (and your car if you're in one)

@@ -5,12 +5,21 @@
 
 local hour = Config.hour
 local minute = Config.minute
+if Config.saveClock then
+    local saved = FrameOS.load('clock', nil)
+    if saved then
+        hour = saved.hour
+        minute = saved.minute
+    end
+end
 local weather = Config.weather
 local msPerMinute = Config.msPerGameMinute
 local carry = 0     -- real milliseconds that haven't turned into a game minute yet
 
 CreateThread(function()
     local last = GetGameTimer()
+    local lastSave = last
+    local lastWeather = last
     while true do
         Wait(250)
         local now = GetGameTimer()
@@ -28,6 +37,21 @@ CreateThread(function()
             end
         end
         last = now
+
+        -- time of day is saved every 15 seconds or so (only the numbers that matter)
+        if Config.saveClock and now - lastSave > 15000 then
+            lastSave = now
+            FrameOS.save('clock', { hour = hour, minute = minute })
+        end
+
+        -- weather: pick a new one from the pool every Config.weatherEvery milliseconds
+        if Config.weatherCycle and now - lastWeather > Config.weatherEvery then
+            lastWeather = now
+            local pick = Config.weatherPool[math.random(1, #Config.weatherPool)]
+            if pick then
+                weather = pick
+            end
+        end
 
         -- set the game's time and weather to ours
         NetworkOverrideClockTime(hour, minute, 0)

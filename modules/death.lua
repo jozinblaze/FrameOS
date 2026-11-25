@@ -46,6 +46,7 @@ local function respawn()
     ped = PlayerPedId()
     ClearPedTasksImmediately(ped)
     ClearPedBloodDamage(ped)
+    ClearPlayerWantedLevel(PlayerId())   -- the cops lose you when you die
     FreezeEntityPosition(ped, true)   -- hold still until the ground has loaded
 
     -- wait for the ground to load, then stand on it. groundZ only trusts

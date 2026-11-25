@@ -67,7 +67,11 @@ CreateThread(function()
 
                     if dist < 2.0 then
                         kind.give()
-                        p.readyAt = now + Config.pickupRespawn
+                        local wait = Config.pickupRespawn
+                        if p.kind == 'cash' then
+                            wait = Config.pickupCashRespawn
+                        end
+                        p.readyAt = now + wait
                         PlaySoundFrontend(-1, 'PICK_UP', 'HUD_FRONTEND_DEFAULT_SOUNDSET', true)
                     end
                 end

@@ -4,6 +4,11 @@
 local radarOnFoot = Config.radarOnFoot
 local showReadout = true
 
+-- the street name and the watch check don't need to be asked for every frame.
+-- they are refreshed twice a second and the readout just draws what was found.
+local street = ''
+local hasWatch = false
+
 -- runs every frame, because hiding only lasts a single frame
 CreateThread(function()
     while true do
@@ -25,13 +30,10 @@ CreateThread(function()
         -- and your speed when you're in a vehicle
         if showReadout then
             local ped = PlayerPedId()
-            local coords = GetEntityCoords(ped)
-            local streetHash = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-            local lines = { GetStreetNameFromHashKey(streetHash) }
+            local lines = { street }
 
-            -- the time only shows while you wear a watch. a prop slot with
-            -- nothing worn in it reports -1.
-            if not Config.watchRequired or GetPedPropIndex(ped, Config.watchSlot) ~= -1 then
+            -- the time only shows while you wear a watch (checked in the thread below)
+            if hasWatch then
                 table.insert(lines, string.format('%02d:%02d', GetClockHours(), GetClockMinutes()))
             end
 
@@ -57,6 +59,18 @@ CreateThread(function()
                 FrameOS.drawText(text, pos.x, pos.y + (number - 1) * 0.03, 0.45)
             end
         end
+    end
+end)
+
+-- refreshes the street name and the watch twice a second.
+-- a prop slot with nothing worn in it reports -1.
+CreateThread(function()
+    while true do
+        local ped = PlayerPedId()
+        local coords = GetEntityCoords(ped)
+        street = GetStreetNameFromHashKey(GetStreetNameAtCoord(coords.x, coords.y, coords.z))
+        hasWatch = not Config.watchRequired or GetPedPropIndex(ped, Config.watchSlot) ~= -1
+        Wait(500)
     end
 end)
 

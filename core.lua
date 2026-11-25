@@ -105,10 +105,31 @@ function FrameOS.forget(key)
 end
 
 -- shows the little help text in the top left of the screen
+-- shows the help text for this one frame only, so it disappears the moment you
+-- step out of range (the old way left it on screen for a few seconds).
+-- call it every frame while you want it visible.
 function FrameOS.help(text)
-    BeginTextCommandDisplayHelp('STRING')
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandDisplayHelp(0, false, true, -1)
+    AddTextEntry('FRAMEOS_HELP', text)
+    DisplayHelpTextThisFrame('FRAMEOS_HELP', false)
+end
+
+-- puts the player at a spot once the ground there has loaded, so you can't fall
+-- through the map. it only trusts ground close to the height you give it.
+function FrameOS.placePed(x, y, z, heading)
+    local ped = PlayerPedId()
+    FreezeEntityPosition(ped, true)
+    SetEntityCoords(ped, x, y, z, false, false, false, false)
+    RequestCollisionAtCoord(x, y, z)
+    local waited = 0
+    while not HasCollisionLoadedAroundEntity(ped) and waited < 3000 do
+        Wait(100)
+        waited = waited + 100
+    end
+    SetEntityCoords(ped, x, y, FrameOS.groundZ(x, y, z), false, false, false, false)
+    if heading then
+        SetEntityHeading(ped, heading)
+    end
+    FreezeEntityPosition(ped, false)
 end
 
 -- the heavy weapons (trunk = true in the config), for quick lookup
