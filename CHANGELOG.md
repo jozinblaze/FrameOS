@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.1.0 - Job system and the Courier job
+- Job engine (modules/jobs.lua): clock in at a spot with E, one job at a time, payouts only while the job is active, idle clock-out, reputation and ranks, on-duty line under the cash counter
+- data/jobs.lua: jobs as plain data (label, kind, spot, pay, interval, ranks)
+- First job: Courier (drive and keep moving) at Legion Square
+- FrameOS.jobPay is the one place job money is given out, ready for server-side pay later
+- Commands: /clockout and /jobstats for players, /job <name> for testing
+
 ## 1.0.0 - Player and world review pass
 - Help prompts draw for one frame only, so they vanish as soon as you leave range (the ghost motel prompt)
 - Dying clears your wanted level

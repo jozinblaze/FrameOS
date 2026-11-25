@@ -126,6 +126,10 @@ Config.safehouses = {
 -- shops (item stores and car dealerships) live in data/shops.lua,
 -- what they sell comes from data/items.lua and data/vehicles.lua.
 
+-- jobs: the jobs themselves are in data/jobs.lua.
+-- how long you can stand around (not working) before you are clocked out.
+Config.jobIdleLimit = 300000    -- milliseconds, 300000 = 5 minutes
+
 -- death: where you wake up and what it costs.
 -- these are the spots as given, hospital interiors don't exist in the
 -- base game so wherever you put them, check you wake up on solid ground.

@@ -11,6 +11,7 @@ client_scripts {
     'data/items.lua',
     'data/vehicles.lua',
     'data/shops.lua',
+    'data/jobs.lua',
     'core.lua',
     'modules/world.lua',
     'modules/hud.lua',
@@ -23,6 +24,8 @@ client_scripts {
     'modules/safehouses.lua',
     'modules/vehicles.lua',
     'modules/inventory.lua',   -- inventory must load before the shop
+    'modules/jobs.lua',        -- the job engine, job files come right after it
+    'modules/jobs/courier.lua',
     'modules/shop.lua',
     'modules/trunk.lua',
     'modules/death.lua',
