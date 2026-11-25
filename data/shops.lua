@@ -35,6 +35,8 @@ Config.stock = {
         'weapon_knife', 'weapon_bat', 'weapon_hatchet', 'weapon_pistol',
         'weapon_snspistol', 'weapon_vintagepistol', 'pistol_ammo',
     },
+    liquor  = { 'pisswasser', 'whiskey', 'vodka', 'lighter' },
+    country = { 'sandwich', 'water', 'ecola', 'sprunk', 'candy_bar', 'coffee', 'bandage' },
     coffee  = { 'coffee', 'lighter' },
     gear    = { 'diving_gear', 'jerry_can' },
     leisure = { 'parachute', 'binoculars', 'diving_gear' },
@@ -87,15 +89,15 @@ store('ltd_3', 'LTD Gasoline', 'normal', -1820.33, 792.66,   138.1,  52, 2)
 store('ltd_4', 'LTD Gasoline', 'normal', 1163.7,   -323.92,  69.2,   52, 2)
 
 -- Rob's Liquor
-store('robs_1', "Rob's Liquor", 'normal', -1222.77, -907.19, 12.32, 52, 2)
-store('robs_2', "Rob's Liquor", 'normal', -1487.7,  -378.53, 40.16, 52, 2)
-store('robs_3', "Rob's Liquor", 'normal', -2967.79, 391.64,  15.04, 52, 2)
-store('robs_4', "Rob's Liquor", 'normal', 1165.28,  2709.4,  38.15, 52, 2)
-store('robs_5', "Rob's Liquor", 'normal', 1135.66,  -982.76, 46.41, 52, 2)
+store('robs_1', "Rob's Liquor", 'liquor', -1222.77, -907.19, 12.32, 52, 2)
+store('robs_2', "Rob's Liquor", 'liquor', -1487.7,  -378.53, 40.16, 52, 2)
+store('robs_3', "Rob's Liquor", 'liquor', -2967.79, 391.64,  15.04, 52, 2)
+store('robs_4', "Rob's Liquor", 'liquor', 1165.28,  2709.4,  38.15, 52, 2)
+store('robs_5', "Rob's Liquor", 'liquor', 1135.66,  -982.76, 46.41, 52, 2)
 
 -- local stores
-store('delvecchio', 'Del Vecchio Liquor',  'normal', -159.36, 6321.59, 31.58, 52, 2)
-store('dons',       "Don's Country Store", 'normal', 161.41,  6640.78, 31.69, 52, 2)
+store('delvecchio', 'Del Vecchio Liquor',  'liquor', -159.36, 6321.59, 31.58, 52, 2)
+store('dons',       "Don's Country Store", 'country', 161.41,  6640.78, 31.69, 52, 2)
 
 -- hardware stores
 store('hardware_1', 'Hardware Store', 'hardware', 45.55,   -1749.01, 29.6,  402, 5)
@@ -127,6 +129,8 @@ Config.shops.pdm = {
     blip = { sprite = 326, color = 3 },
 }
 
+-- BLOCKED for now: an MLO replaced the building this spot is in, so you can't reach it.
+-- move x/y/z to an outdoor spot, or remove the MLO, to use it.
 Config.shops.exotic = {
     label = 'Exotic Vehicle Shop', type = 'vehicles', stock = 'exotic',
     x = -1255.6, y = -361.16, z = 36.91,

@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 0.9.0 - Shops and vehicle ownership review pass
+- Shops close when you die and only open while you are on foot
+- /sellcar needs confirm on the end
+- Owned cars save an id, a plate and two colors and come out with them (older saved cars are given some once)
+- Rob's Liquor and Del Vecchio sell a liquor list, Don's a country-store list, 24/7 and LTD keep the full list
+- Exotic dealership marked blocked by the MLO; notes added about the spawn and preview spots
+
  ## 0.8.0 - Money and items review pass
  - Cash is whole dollars only; zero and negative amounts are ignored
  - /inv skips items that no longer exist; old saved names are migrated

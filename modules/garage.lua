@@ -6,7 +6,8 @@ local favorites = FrameOS.load('favorites', {})   -- a plain list of model names
 
 -- puts you in a new car.
 -- at is optional, a spot like { x, y, z, h }. without it the car appears where you stand.
-local function spawnCar(modelName, at)
+-- look is optional too, an owned car with a plate, primary and secondary color.
+local function spawnCar(modelName, at, look)
     local model = joaat(modelName)
 
     -- make sure it's a real vehicle before doing anything
@@ -40,6 +41,10 @@ local function spawnCar(modelName, at)
     end
 
     lastCar = CreateVehicle(model, coords.x, coords.y, coords.z, heading, true, false)
+    if look then
+        SetVehicleColours(lastCar, look.primary or 0, look.secondary or 0)
+        SetVehicleNumberPlateText(lastCar, look.plate or 'FRAMEOS')
+    end
     SetPedIntoVehicle(ped, lastCar, -1)   -- -1 = driver seat
     SetModelAsNoLongerNeeded(model)
 

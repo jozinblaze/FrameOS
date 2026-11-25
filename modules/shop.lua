@@ -89,6 +89,9 @@ local function browseItems(shop)
 
     while browsing do
         Wait(0)
+        if IsEntityDead(ped) then   -- dying closes the shop, or you'd respawn frozen
+            browsing = false
+        end
 
         -- show up to 9 rows, keeping the selected one in view
         local first = math.max(1, math.min(index - 4, #list - 8))
@@ -128,7 +131,7 @@ local function browseItems(shop)
         end
     end
 
-    FreezeEntityPosition(ped, false)
+    FreezeEntityPosition(PlayerPedId(), false)
 end
 
 local function browseVehicles(shop)
@@ -143,6 +146,8 @@ local function browseVehicles(shop)
 
     FreezeEntityPosition(ped, true)
 
+    -- the display car stands on the shop's preview spot (data/shops.lua).
+    -- a shop without one shows it 6 meters in front of you, which is fine for /setshop shops.
     -- where the display car stands: the shop's preview spot, or 6 meters in front of you
     local spot, heading
     if shop.preview then
@@ -184,6 +189,9 @@ local function browseVehicles(shop)
 
     while browsing do
         Wait(0)
+        if IsEntityDead(ped) then
+            browsing = false
+        end
         local car = cars[index]
         FrameOS.drawText(car.name .. '   ' .. FrameOS.formatMoney(car.price), 0.5, 0.82, 0.7, true)
         FrameOS.drawText(car.category or '', 0.5, 0.875, 0.4, true)
@@ -197,8 +205,7 @@ local function browseVehicles(shop)
             showCar()
         elseif IsControlJustPressed(0, 191) or IsControlJustPressed(0, 18) then   -- enter
             if FrameOS.takeCash(car.price) then
-                FrameOS.ownVehicle(car.model, car.name, car.price)
-                bought = true
+                bought = FrameOS.ownVehicle(car.model, car.name, car.price)   -- the saved car entry
                 browsing = false
             end
         elseif IsControlJustPressed(0, 177) then                   -- backspace
@@ -207,12 +214,13 @@ local function browseVehicles(shop)
     end
 
     removePreview()
-    FreezeEntityPosition(ped, false)
+    FreezeEntityPosition(PlayerPedId(), false)
 
-    if bought then
+    if bought and not IsEntityDead(PlayerPedId()) then
         FrameOS.notify('Bought the ' .. cars[index].name)
-        -- the car appears at the shop's spawn spot if it has one
-        FrameOS.spawnVehicle(cars[index].model, shop.spawn)
+        -- the car appears at the shop's spawn spot if it has one (shop.spawn in data/shops.lua)
+        -- and gets the plate and colors that were saved when you bought it
+        FrameOS.spawnVehicle(cars[index].model, shop.spawn, bought)
     end
 end
 
@@ -245,7 +253,8 @@ CreateThread(function()
                         radius = 2.0
                     end
 
-                    if dist < radius then
+                    -- shops only open while you're on foot
+                    if dist < radius and not IsPedInAnyVehicle(PlayerPedId(), false) then
                         if isItems then
                             FrameOS.help('Press ~INPUT_CONTEXT~ to shop')
                         else
