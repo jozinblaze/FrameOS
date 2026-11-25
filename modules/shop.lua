@@ -56,7 +56,7 @@ local function vehicleList(stockName)
 end
 
 -- the items a shop sells, as a list. an entry can be a name,
--- or { name = 'beer', price = 9 } to charge a different price here.
+-- or { name = 'pisswasser', price = 9 } to charge a different price here.
 local function itemList(stockName)
     local list = {}
     for _, entry in ipairs(Config.stock[stockName] or {}) do

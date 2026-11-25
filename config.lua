@@ -122,7 +122,7 @@ Config.hospitals = {
     { name = 'Central', x = 337.39,  y = -1393.26, z = 32.51, h = 0.0 },
     { name = 'Paleto',  x = -245.25, y = 6328.88,  z = 32.43, h = 0.0 },
 }
-Config.hospitalBill = 500       -- most you pay (you never go below $0)
+Config.hospitalBill = 250       -- most you pay (you never go below $0)
 Config.respawnDelay = 4000      -- how long the death screen shows (milliseconds)
 Config.deathText = 'WASTED'
 

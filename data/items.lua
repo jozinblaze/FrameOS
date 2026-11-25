@@ -4,6 +4,7 @@
 --
 -- what an item can do (use as many as make sense):
 --   label    the name you see
+--   weight   how heavy it is (kg). nothing uses it yet, the storage rework will
 --   price    the normal price
 --   heal     health it gives when you use it (health runs 100 to 200 on most peds)
 --   armor    armor it gives when you use it (0 to 100)
@@ -15,50 +16,50 @@
 
 Items = {
     -- food and drink
-    tosti         = { label = 'Tosti',         price = 2,   heal = 20 },
-    sandwich      = { label = 'Sandwich',      price = 2,   heal = 25 },
-    water_bottle  = { label = 'Water Bottle',  price = 2,   heal = 10 },
-    kurkakola     = { label = 'Kurkakola',     price = 2,   heal = 10 },
-    twerks_candy  = { label = 'Twerks Candy',  price = 2,   heal = 5 },
-    snikkel_candy = { label = 'Snikkel Candy', price = 2,   heal = 5 },
-    coffee        = { label = 'Coffee',        price = 5,   heal = 10 },
-    beer          = { label = 'Beer',          price = 7 },
-    whiskey       = { label = 'Whiskey',       price = 10 },
-    vodka         = { label = 'Vodka',         price = 12 },
+    burger        = { label = 'Burger Shot Burger', price = 4,  weight = 0.4, heal = 30 },
+    cluckin_meal  = { label = "Cluckin' Bell Meal", price = 5,  weight = 0.5, heal = 35 },
+    sandwich      = { label = 'Sandwich',      price = 2,   weight = 0.3, heal = 25 },
+    water         = { label = 'Water Bottle',  price = 2,   weight = 0.5, heal = 10 },
+    ecola         = { label = 'eCola',         price = 2,   weight = 0.4, heal = 10 },
+    sprunk        = { label = 'Sprunk',        price = 2,   weight = 0.4, heal = 10 },
+    candy_bar     = { label = 'Candy Bar',     price = 2,   weight = 0.1, heal = 5 },
+    coffee        = { label = 'Coffee',        price = 5,   weight = 0.3, heal = 10 },
+    pisswasser    = { label = 'Pisswasser',    price = 7,   weight = 0.5 },
+    whiskey       = { label = 'Whiskey',       price = 10,  weight = 0.8 },
+    vodka         = { label = 'Vodka',         price = 12,  weight = 0.8 },
 
     -- medical and repair
-    bandage           = { label = 'Bandage',             price = 100, heal = 60 },
-    repairkit         = { label = 'Repair Kit',          price = 250, fix = true },
-    advancedrepairkit = { label = 'Advanced Repair Kit', price = 500, fix = true },
+    bandage           = { label = 'Bandage',             price = 100, weight = 0.1, heal = 60 },
+    repairkit         = { label = 'Repair Kit',          price = 250, weight = 2.0, fix = true },
+    advancedrepairkit = { label = 'Advanced Repair Kit', price = 500, weight = 3.0, fix = true },
 
     -- bag items with no use yet
-    lighter        = { label = 'Lighter',         price = 2 },
-    lockpick       = { label = 'Lockpick',        price = 200 },
-    screwdriverset = { label = 'Screwdriver Set', price = 350 },
-    phone          = { label = 'Phone',           price = 850 },
-    radio          = { label = 'Radio',           price = 250 },
-    binoculars     = { label = 'Binoculars',      price = 50 },
-    fitbit         = { label = 'Fitbit',          price = 400 },
-    cleaningkit    = { label = 'Cleaning Kit',    price = 150 },
-    diving_gear    = { label = 'Diving Gear',     price = 2500 },
-    jerry_can      = { label = 'Jerry Can',       price = 200 },
+    lighter        = { label = 'Lighter',         price = 2,    weight = 0.1 },
+    lockpick       = { label = 'Lockpick',        price = 200,  weight = 0.1 },
+    screwdriverset = { label = 'Screwdriver Set', price = 350,  weight = 0.5 },
+    phone          = { label = 'Phone',           price = 850,  weight = 0.2 },
+    radio          = { label = 'Radio',           price = 250,  weight = 0.5 },
+    binoculars     = { label = 'Binoculars',      price = 50,   weight = 0.5 },
+    cleaningkit    = { label = 'Cleaning Kit',    price = 150,  weight = 1.0 },
+    diving_gear    = { label = 'Diving Gear',     price = 2500, weight = 8.0 },
+    jerry_can      = { label = 'Jerry Can',       price = 200,  weight = 5.0 },
 
     -- gear you get right away
-    parachute = { label = 'Parachute', price = 2500, weapon = 'GADGET_PARACHUTE', ammo = 1 },
+    parachute = { label = 'Parachute', price = 2500, weight = 4.0, weapon = 'GADGET_PARACHUTE', ammo = 1 },
 
     -- weapons you get right away
-    weapon_knife        = { label = 'Knife',        price = 250,  weapon = 'WEAPON_KNIFE',        ammo = 1 },
-    weapon_bat          = { label = 'Bat',          price = 250,  weapon = 'WEAPON_BAT',          ammo = 1 },
-    weapon_hatchet      = { label = 'Hatchet',      price = 250,  weapon = 'WEAPON_HATCHET',      ammo = 1 },
-    weapon_wrench       = { label = 'Wrench',       price = 250,  weapon = 'WEAPON_WRENCH',       ammo = 1 },
-    weapon_hammer       = { label = 'Hammer',       price = 250,  weapon = 'WEAPON_HAMMER',       ammo = 1 },
-    weapon_pistol       = { label = 'Pistol',       price = 2500, weapon = 'WEAPON_PISTOL',       ammo = 50 },
-    weapon_snspistol    = { label = 'SNS Pistol',   price = 1500, weapon = 'WEAPON_SNSPISTOL',    ammo = 50 },
-    weapon_vintagepistol = { label = 'Vintage Pistol', price = 4000, weapon = 'WEAPON_VINTAGEPISTOL', ammo = 50 },
+    weapon_knife         = { label = 'Knife',          price = 250,  weight = 0.5, weapon = 'WEAPON_KNIFE',         ammo = 1 },
+    weapon_bat           = { label = 'Bat',            price = 250,  weight = 1.0, weapon = 'WEAPON_BAT',           ammo = 1 },
+    weapon_hatchet       = { label = 'Hatchet',        price = 250,  weight = 1.5, weapon = 'WEAPON_HATCHET',       ammo = 1 },
+    weapon_wrench        = { label = 'Wrench',         price = 250,  weight = 1.0, weapon = 'WEAPON_WRENCH',        ammo = 1 },
+    weapon_hammer        = { label = 'Hammer',         price = 250,  weight = 1.0, weapon = 'WEAPON_HAMMER',        ammo = 1 },
+    weapon_pistol        = { label = 'Pistol',         price = 2500, weight = 1.0, weapon = 'WEAPON_PISTOL',        ammo = 50 },
+    weapon_snspistol     = { label = 'SNS Pistol',     price = 1500, weight = 0.8, weapon = 'WEAPON_SNSPISTOL',     ammo = 50 },
+    weapon_vintagepistol = { label = 'Vintage Pistol', price = 4000, weight = 1.0, weapon = 'WEAPON_VINTAGEPISTOL', ammo = 50 },
 
     -- ammo (you need one of the pistols first)
     pistol_ammo = {
-        label = 'Pistol Ammo', price = 250, ammo = 50,
+        label = 'Pistol Ammo', price = 250, weight = 0.5, ammo = 50,
         ammoFor = { 'WEAPON_PISTOL', 'WEAPON_SNSPISTOL', 'WEAPON_VINTAGEPISTOL' },
     },
 }

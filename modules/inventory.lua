@@ -9,6 +9,20 @@
 
 local bag = FrameOS.load('inventory', {})   -- item name -> how many
 
+-- items that were renamed in v0.8.0: old name -> new name.
+-- anything already in a saved bag under an old name is moved over once.
+local renamed = {
+    tosti = 'burger', water_bottle = 'water', kurkakola = 'ecola',
+    twerks_candy = 'candy_bar', snikkel_candy = 'sprunk', beer = 'pisswasser',
+}
+for old, new in pairs(renamed) do
+    if bag[old] then
+        bag[new] = (bag[new] or 0) + bag[old]
+        bag[old] = nil
+    end
+end
+bag.fitbit = nil   -- removed from the game
+
 local function saveBag()
     FrameOS.save('inventory', bag)
 end
@@ -32,6 +46,11 @@ function FrameOS.canGive(name)
     end
     if item.ammoFor and not weaponFor(item) then
         FrameOS.notify('You need a gun that takes this first')
+        return false
+    end
+    -- no paying twice for a weapon you already carry (ammo has its own item)
+    if item.weapon and HasPedGotWeapon(PlayerPedId(), joaat(item.weapon), false) then
+        FrameOS.notify('You already have this')
         return false
     end
     return true
@@ -122,8 +141,11 @@ end
 FrameOS.command('inv', 'shows what is in your bag', function()
     local lines = {}
     for name, count in pairs(bag) do
-        table.insert(lines, Items[name].label .. ' x' .. count)
-        print('[bag] ' .. name .. ' x' .. count)
+        -- an item that no longer exists in data/items.lua is skipped, not a crash
+        if Items[name] then
+            table.insert(lines, Items[name].label .. ' x' .. count)
+            print('[bag] ' .. name .. ' x' .. count)
+        end
     end
     if #lines == 0 then
         FrameOS.notify('Your bag is empty')

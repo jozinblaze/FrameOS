@@ -24,12 +24,20 @@ function FrameOS.getCash()
 end
 
 function FrameOS.addCash(amount)
+    amount = math.floor(amount)   -- whole dollars only
+    if amount <= 0 then
+        return   -- taking money goes through takeCash
+    end
     cash = cash + amount
     FrameOS.save('cash', cash)
     FrameOS.notify('+' .. formatMoney(amount))
 end
 
 function FrameOS.takeCash(amount)
+    amount = math.floor(amount)
+    if amount <= 0 then
+        return true   -- nothing to pay
+    end
     if cash < amount then
         FrameOS.notify('Not enough cash')
         return false
@@ -70,7 +78,7 @@ if Config.testCommands then
     FrameOS.testCommand('setcash', 'sets your money, example: /setcash 0', function(source, args)
         local amount = tonumber(args[1])
         if amount then
-            cash = amount
+            cash = math.max(0, math.floor(amount))
             FrameOS.save('cash', cash)
         else
             FrameOS.notify('Usage: /setcash <amount>')

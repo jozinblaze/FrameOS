@@ -5,7 +5,7 @@
 --   'vehicles' pulls from data/vehicles.lua (car dealerships)
 --
 -- Config.stock  named lists of what a shop sells. a shop picks one by name.
---               an item can also be written { name = 'beer', price = 9 } to
+--               an item can also be written { name = 'pisswasser', price = 9 } to
 --               charge a different price at that shop.
 -- Config.shops  the shops themselves:
 --   label   the name shown on the map and in the shop
@@ -24,12 +24,12 @@
 Config.stock = {
     -- item lists
     normal = {
-        'tosti', 'sandwich', 'water_bottle', 'kurkakola', 'twerks_candy',
-        'snikkel_candy', 'beer', 'whiskey', 'vodka', 'bandage', 'lighter',
+        'burger', 'cluckin_meal', 'sandwich', 'water', 'ecola', 'sprunk', 'candy_bar',
+        'pisswasser', 'whiskey', 'vodka', 'bandage', 'lighter',
     },
     hardware = {
         'lockpick', 'weapon_wrench', 'weapon_hammer', 'repairkit', 'screwdriverset',
-        'phone', 'radio', 'binoculars', 'fitbit', 'cleaningkit',
+        'phone', 'radio', 'binoculars', 'cleaningkit',
     },
     weapons = {
         'weapon_knife', 'weapon_bat', 'weapon_hatchet', 'weapon_pistol',
