@@ -2,6 +2,14 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+ ## 0.8.0 - Money and items review pass
+ - Cash is whole dollars only; zero and negative amounts are ignored
+ - /inv skips items that no longer exist; old saved names are migrated
+ - Items renamed to GTA ones (Burger Shot, Cluckin Bell, eCola, Sprunk, Pisswasser); Fitbit removed
+ - Every item has a weight field for the coming storage rework
+ - Buying a weapon you already carry is blocked
+ - Hospital bill lowered to $250
+
 ## 0.7.0 - Test switch, vehicle-aware blip, trunk parked
 - Config.testCommands now covers every cheat, teleport, debug and build command (FrameOS.testCommand)
 - Car blip hides while you are inside, named after the model, icon by vehicle type
