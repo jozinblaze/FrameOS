@@ -8,7 +8,7 @@
 --
 -- in this file:  balances, import of old saves, buying items and cars, selling a car,
 --                using an item, cash pickups, the hospital bill, job pay (checked against
---                the job's data), the bank and ATMs, and the admin test commands.
+--                the job's data), the bank and ATMs (storage is in storage.lua), and the admin test commands.
 
 local function data(source)
     return FrameOS.getPlayer(source)
@@ -16,6 +16,18 @@ end
 
 local function no(why)
     return { ok = false, why = why }
+end
+
+-- how heavy a list of items is (name -> count). an item that is not in data/items.lua weighs nothing.
+function FrameOS.weightOf(items)
+    local total = 0
+    for name, count in pairs(items) do
+        local item = Items[name]
+        if item and item.weight then
+            total = total + item.weight * count
+        end
+    end
+    return total
 end
 
 -- how much more cash the ATMs will give this player today
@@ -202,6 +214,10 @@ FrameOS.onAsk('buyItem', function(source, shopId, itemName, claimedStock)
     if not price then
         return no('They do not sell that')
     end
+    -- check the bag has room BEFORE taking money (weapons and ammo don't go in the bag)
+    if not (item.weapon or item.ammoFor) and FrameOS.weightOf(d.bag) + (item.weight or 0) > Config.bagWeight + 0.0001 then
+        return no('Your bag is too heavy')
+    end
     if not FrameOS.takeCash(source, price, 'bought ' .. itemName .. ' at ' .. tostring(shopId)) then
         return no('Not enough cash')
     end
@@ -245,6 +261,11 @@ FrameOS.onAsk('sellVehicle', function(source, carId)
     local d = data(source)
     for index, car in ipairs(d.owned) do
         if car.id == carId then
+            -- never lose someone's things: the trunk and glovebox must be empty first
+            local box = d.storage or {}
+            if next(box['trunk:' .. car.plate] or {}) or next(box['glove:' .. car.plate] or {}) then
+                return no('Empty the trunk and glovebox first')
+            end
             table.remove(d.owned, index)
             FrameOS.markDirty(source)
             FrameOS.log('car', source, 'sold ' .. car.model .. ' plate ' .. car.plate)

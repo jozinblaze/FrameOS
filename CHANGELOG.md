@@ -2,6 +2,14 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.6.0 - Storage: bag weight, trunks, gloveboxes, stashes
+- Storage: one container idea (a list of item -> count kept on the server) used for your bag, car trunks, car gloveboxes and safehouse stashes
+- Weight limits (data/storage.lua): bag 30 kg, glovebox 5 kg, trunk by vehicle category, stash 100 kg; shops refuse when your bag is too heavy
+- Trunk: stand at the back of a car you own and press E. Glovebox: sit in it and press G. Stash: at a safehouse circle press G
+- Two-list menu (You / container): Left and Right switch, Up and Down choose, Enter moves one, Shift+Enter moves all
+- Storage is kept by the car's plate in your save file, never filtered or cleared on load, and a car can't be sold until its trunk and glovebox are empty
+- New requests storageOpen and storageMove (server/storage.lua) check ownership, place, weight and log every move; /inv shows weight
+
 ## 1.5.0 - Banking and ATMs
 - Banking: 8 bank counters (blip, E to open) and ATMs found by their prop model anywhere on the map
 - Deposit and withdraw with quick amounts, everything possible, or a typed amount

@@ -98,6 +98,7 @@ local function defaults()
         atmOut = 0,        -- cash taken from ATMs today
         bag = {},          -- item name -> how many
         owned = {},        -- the cars you own
+        storage = {},      -- container id -> items (car trunks and gloveboxes by plate, safehouse stashes)
         nextCarId = 1,
         jobrep = {},       -- job id -> reputation
         imported = false,  -- true once the old saves from your own computer were copied up

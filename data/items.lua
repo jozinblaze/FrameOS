@@ -4,7 +4,7 @@
 --
 -- what an item can do (use as many as make sense):
 --   label    the name you see
---   weight   how heavy it is (kg). nothing uses it yet, the storage rework will
+--   weight   how heavy it is (kg). the bag and every container have a weight limit (data/storage.lua)
 --   price    the normal price
 --   heal     health it gives when you use it (health runs 100 to 200 on most peds)
 --   armor    armor it gives when you use it (0 to 100)

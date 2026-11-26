@@ -1,5 +1,5 @@
--- inventory: a simple bag. it just counts how many of each item you have.
--- no slots and no weight yet, that comes with the inventory rework.
+-- inventory: your bag. it counts how many of each item you have and has a weight limit
+-- (data/storage.lua). trunks, gloveboxes and stashes are in storage.lua.
 -- the SERVER keeps the bag (server/economy.lua). this file shows it and applies effects.
 -- /inv         shows what's in your bag
 -- /use <item>  uses one (example: /use bandage)
@@ -119,7 +119,13 @@ FrameOS.command('inv', 'shows what is in your bag', function()
     if #lines == 0 then
         FrameOS.notify('Your bag is empty')
     else
-        FrameOS.notify('Bag: ' .. table.concat(lines, ', '))
+        local total = 0
+        for name, count in pairs(FrameOS.data.bag) do
+            if Items[name] and Items[name].weight then
+                total = total + Items[name].weight * count
+            end
+        end
+        FrameOS.notify(string.format('Bag %.1f/%.1f kg: ', total, Config.bagWeight) .. table.concat(lines, ', '))
     end
 end)
 
