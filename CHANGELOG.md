@@ -2,6 +2,11 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.2.1 - Pimping job fixes
+- Pimping peds are local-only (not networked), so players at the same pickup cannot get doubled or desynced peds
+- A girl that spawns dead, vanishes, or dies while waiting is replaced quietly and your streak stays
+- Rival gang difficulty settings in data/jobs.lua: rivalCount, rivalAccuracy, rivalAttackDistance (accuracy lowered to 25-40)
+
 ## 1.2.0 - Pimping job
 - Pimping job (modules/jobs/pimp.lua), rewritten from scratch as a job-engine job: girls, customers, payday, problem customers, rival gangs
 - All pimping settings, ranks, ped models, names and text live in data/jobs.lua under Jobs.pimp

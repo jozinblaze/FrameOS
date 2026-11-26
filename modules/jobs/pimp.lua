@@ -89,7 +89,9 @@ local function makePed(modelName, pos)
     if not HasModelLoaded(model) then
         return nil
     end
-    local ped = CreatePed(4, model, pos.x, pos.y, pos.z, math.random(0, 359) + 0.0, true, true)
+    -- false, false = a local ped: it only exists on your own game. other players never see
+    -- it, so two people at the same pickup can't end up with doubled or desynced peds.
+    local ped = CreatePed(4, model, pos.x, pos.y, pos.z, math.random(0, 359) + 0.0, false, false)
     SetModelAsNoLongerNeeded(model)
     SetEntityAsMissionEntity(ped, true, true)
     SetBlockingOfNonTemporaryEvents(ped, true)   -- they ignore what happens around them
@@ -159,6 +161,7 @@ local function spawnGirl(girl)
         return
     end
     girl.blip = blipOn(girl.ped, 3, 'Girl')
+    girl.bornAt = GetGameTimer()
     girl.state = 'waiting'
     say(girl, job.text.pickup)
 end
@@ -198,13 +201,13 @@ end
 
 -- the two rival gang members appear once you are close enough to the spot
 local function spawnRivals(girl)
-    for _ = 1, 2 do
+    for _ = 1, job.rivalCount do
         local pos = vector3(girl.rivalPos.x + math.random(-4, 4), girl.rivalPos.y + math.random(-4, 4), girl.rivalPos.z)
         local ped = makePed(pick(job.rivalModels), pos)
         if ped then
             SetPedRelationshipGroupHash(ped, joaat('HATES_PLAYER'))
             GiveWeaponToPed(ped, joaat(pick(job.rivalWeapons)), 255, false, true)
-            SetPedAccuracy(ped, math.random(40, 60))
+            SetPedAccuracy(ped, math.random(job.rivalAccuracy.min, job.rivalAccuracy.max))
             SetPedDropsWeaponsWhenDead(ped, false)
             SetBlockingOfNonTemporaryEvents(ped, false)
             table.insert(girl.rivals, { ped = ped, blip = blipOn(ped, 1, 'Rival') })
@@ -230,17 +233,24 @@ end
 local function step(girl)
     local now = GetGameTimer()
 
-    -- a girl that died is replaced after a while, and it costs you your streak
-    if girl.ped and IsEntityDead(girl.ped) then
+    -- a girl that died or disappeared is replaced.
+    -- it only costs you your streak if it was really your doing: she died while she was
+    -- working with you. a girl that spawned dead, vanished, or died while waiting to be
+    -- picked up is replaced quietly and your streak stays.
+    local vanished = girl.ped and not DoesEntityExist(girl.ped)
+    if girl.ped and (vanished or IsEntityDead(girl.ped)) then
+        local quiet = vanished or girl.state == 'waiting' or now - girl.bornAt < 5000
         dropBlip(girl.blip)
         release(girl.ped)
         girl.ped = nil
-        streak = 0
         if girl.customer then
             finishCustomer(girl)
         end
         girl.state = 'spawn'
-        say(girl, job.text.lost)
+        if not quiet then
+            streak = 0
+            say(girl, job.text.lost)
+        end
         return
     end
 
@@ -352,7 +362,7 @@ local function step(girl)
                     local dist = #(playerPos - GetEntityCoords(rival.ped))
                     nearest = math.min(nearest, dist)
                     -- they go for you once you are close
-                    if dist < 60.0 and not rival.attacking then
+                    if dist < job.rivalAttackDistance and not rival.attacking then
                         rival.attacking = true
                         TaskCombatPed(rival.ped, PlayerPedId(), 0, 16)
                     end

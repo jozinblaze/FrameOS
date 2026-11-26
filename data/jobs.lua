@@ -47,6 +47,9 @@ Jobs = {
         problemChance = 8,                       -- percent of customers that refuse to pay
         rivalChance = 5,                         -- percent that turn into a rival gang
         repProblem = 50, repRival = 100, repFail = 30,   -- rep for winning, rep lost for failing
+        -- rival gang difficulty: how many, how well they shoot (0 to 100), and how close
+        -- you get before they come for you (meters)
+        rivalCount = 2, rivalAccuracy = { min = 25, max = 40 }, rivalAttackDistance = 60.0,
         spawnRadius = 250.0,                     -- girls and customers appear this far from you at most (meters)
         -- the number of girls working for you comes from your rank
         ranks = {
