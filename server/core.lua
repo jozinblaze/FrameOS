@@ -94,6 +94,8 @@ local function defaults()
         created = os.time(),
         cash = Config.startCash or 0,
         bank = 0,
+        atmDay = '',       -- the day (YYYYMMDD) atmOut counts for
+        atmOut = 0,        -- cash taken from ATMs today
         bag = {},          -- item name -> how many
         owned = {},        -- the cars you own
         nextCarId = 1,

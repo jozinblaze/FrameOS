@@ -52,7 +52,7 @@ end
 
 -- everything the server keeps for us (cash, bank, bag, owned cars, job rank).
 -- the server sends the whole thing after every change, we only show it.
-FrameOS.data = { cash = 0, bank = 0, bag = {}, owned = {}, jobrep = {} }
+FrameOS.data = { cash = 0, bank = 0, atmLeft = 0, bag = {}, owned = {}, jobrep = {} }
 local dataLoaded = false
 
 RegisterNetEvent('frameos:data', function(newData)

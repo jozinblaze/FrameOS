@@ -11,6 +11,7 @@ shared_scripts {
     'data/vehicles.lua',
     'data/shops.lua',
     'data/jobs.lua',
+    'data/banks.lua',
 }
 
 -- the server side. server/core.lua must come first.
@@ -33,6 +34,7 @@ client_scripts {
     'modules/pickups.lua',
     'modules/safehouses.lua',
     'modules/vehicles.lua',
+    'modules/bank.lua',
     'modules/inventory.lua',   -- inventory must load before the shop
     'modules/jobs.lua',        -- the job engine, job files come right after it
     'modules/jobs/courier.lua',

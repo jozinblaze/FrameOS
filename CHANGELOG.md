@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.5.0 - Banking and ATMs
+- Banking: 8 bank counters (blip, E to open) and ATMs found by their prop model anywhere on the map
+- Deposit and withdraw with quick amounts, everything possible, or a typed amount
+- ATM withdrawals are capped per day (Config.atmDailyLimit, default $5,000); banks have no cap; putting money in is never capped
+- The account lives on the server (new 'bank' request): checks cash, balance, bank position and the daily limit, logs everything
+- New data/banks.lua for banks, ATM models, limit and amounts; test command /setbank (admin)
+
 ## 1.4.1 - Data safety and pimp animations
 - Import no longer throws data away: cars are kept even if the model is not in the Vehicles list, and the cash cap is a setting (Config.importCashMax, default 2,000,000)
 - Config.importEnabled: turn the import OFF before sharing the server

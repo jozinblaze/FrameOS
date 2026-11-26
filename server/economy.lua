@@ -8,7 +8,7 @@
 --
 -- in this file:  balances, import of old saves, buying items and cars, selling a car,
 --                using an item, cash pickups, the hospital bill, job pay (checked against
---                the job's data), and the admin test commands.
+--                the job's data), the bank and ATMs, and the admin test commands.
 
 local function data(source)
     return FrameOS.getPlayer(source)
@@ -18,12 +18,20 @@ local function no(why)
     return { ok = false, why = why }
 end
 
+-- how much more cash the ATMs will give this player today
+local function atmLeft(d)
+    if d.atmDay ~= os.date('%Y%m%d') then
+        return Config.atmDailyLimit
+    end
+    return math.max(0, Config.atmDailyLimit - (d.atmOut or 0))
+end
+
 -- sends the player's data to their screen
 function FrameOS.push(source)
     local d = data(source)
     if d then
         TriggerClientEvent('frameos:data', source, {
-            cash = d.cash, bank = d.bank, bag = d.bag, owned = d.owned, jobrep = d.jobrep,
+            cash = d.cash, bank = d.bank, atmLeft = atmLeft(d), bag = d.bag, owned = d.owned, jobrep = d.jobrep,
         })
     end
 end
@@ -388,6 +396,66 @@ FrameOS.onAsk('jobRep', function(source, id, points)
     return { ok = true, rep = d.jobrep[id] }
 end, { every = 400 })
 
+-- ---------------------------------------------------------------- bank and ATMs
+
+-- deposit or withdraw. kind is 'bank' (you must be at a bank counter) or 'atm'.
+-- the server cannot see ATM props, so an ATM is taken on trust, but the only thing it
+-- can do is move YOUR money between your account and your pocket, and withdrawing is
+-- capped per day (Config.atmDailyLimit). banks have no cap and are checked by position.
+FrameOS.onAsk('bank', function(source, action, amount, kind)
+    local d = data(source)
+    amount = math.floor(tonumber(amount) or 0)
+    if amount <= 0 or amount > 1000000000 then
+        return no('Enter an amount')
+    end
+    if kind == 'bank' then
+        local atBank = false
+        for _, b in ipairs(Config.banks) do
+            if near(source, b.x, b.y, b.z, 12.0) then
+                atBank = true
+                break
+            end
+        end
+        if not atBank then
+            return no('You are not at a bank')
+        end
+    elseif kind ~= 'atm' then
+        return no('Bad request')
+    end
+
+    if action == 'deposit' then
+        if d.cash < amount then
+            return no('You do not have that much cash')
+        end
+        d.cash = d.cash - amount
+        d.bank = d.bank + amount
+    elseif action == 'withdraw' then
+        if d.bank < amount then
+            return no('Not enough in your account')
+        end
+        if kind == 'atm' then
+            local left = atmLeft(d)
+            if amount > left then
+                return no('ATM limit left today: $' .. left)
+            end
+            if d.atmDay ~= os.date('%Y%m%d') then
+                d.atmDay = os.date('%Y%m%d')
+                d.atmOut = 0
+            end
+            d.atmOut = d.atmOut + amount
+        end
+        d.bank = d.bank - amount
+        d.cash = d.cash + amount
+    else
+        return no('Bad request')
+    end
+
+    FrameOS.markDirty(source)
+    FrameOS.log('bank', source, action .. ' ' .. amount .. ' at ' .. kind .. ' (cash ' .. d.cash .. ', bank ' .. d.bank .. ')')
+    FrameOS.push(source)
+    return { ok = true }
+end, { every = 300 })
+
 -- ---------------------------------------------------------------- admin test commands
 
 -- /givecash, /setcash and /giveitem. admins only, and only while Config.testCommands is on.
@@ -404,6 +472,11 @@ FrameOS.onAsk('admin', function(source, action, a, b)
         d.cash = math.max(0, math.floor(a))
         FrameOS.markDirty(source)
         FrameOS.log('cash', source, 'admin setcash ' .. d.cash)
+        FrameOS.push(source)
+    elseif action == 'setbank' and type(a) == 'number' then
+        d.bank = math.max(0, math.floor(a))
+        FrameOS.markDirty(source)
+        FrameOS.log('bank', source, 'admin setbank ' .. d.bank)
         FrameOS.push(source)
     elseif action == 'givecar' and type(a) == 'string' and a:match('^[%w_]+$') and #a <= 32 then
         local known = Vehicles[a]
