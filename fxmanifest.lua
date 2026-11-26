@@ -26,6 +26,7 @@ client_scripts {
     'modules/inventory.lua',   -- inventory must load before the shop
     'modules/jobs.lua',        -- the job engine, job files come right after it
     'modules/jobs/courier.lua',
+    'modules/jobs/pimp.lua',
     'modules/shop.lua',
     'modules/trunk.lua',
     'modules/death.lua',

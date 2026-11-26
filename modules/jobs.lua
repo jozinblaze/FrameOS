@@ -15,6 +15,8 @@
 -- commands: /clockout and /jobstats. /job <name> is a test command.
 
 local handlers = {}                 -- job id -> the job's own behavior
+local spots = FrameOS.load('jobspots', {})   -- spots you placed in game: job id -> { x, y, z }
+local blips = {}                    -- map icons we made, so we can redo them
 local rep = FrameOS.load('jobrep', {})   -- job id -> reputation points
 local current = nil                 -- the job you are on duty for (resets on relog)
 local activeMs = 0                  -- active time since the last payout
@@ -26,6 +28,11 @@ end
 
 function FrameOS.currentJob()
     return current
+end
+
+-- where a job's clock-in spot is: the one you placed, or the one in data/jobs.lua
+local function spotOf(id)
+    return spots[id] or Jobs[id].spot
 end
 
 -- the rank for a number of reputation points
@@ -40,10 +47,16 @@ local function rankFor(id, points)
     return best
 end
 
+-- your current rank table for a job, like { name = 'Rookie', rep = 0, bonus = 1.0 }
+function FrameOS.jobRank(id)
+    return rankFor(id, rep[id] or 0)
+end
+
 -- gives pay and reputation. every job payout goes through here.
+-- amount can be 0 to give only reputation, points can be negative (rep never goes below 0).
 function FrameOS.jobPay(id, amount, points)
     local before = rankFor(id, rep[id] or 0)
-    rep[id] = (rep[id] or 0) + (points or 0)
+    rep[id] = math.max(0, (rep[id] or 0) + (points or 0))
     FrameOS.save('jobrep', rep)
     FrameOS.addCash(amount)
     local after = rankFor(id, rep[id])
@@ -85,13 +98,23 @@ local function clockIn(id)
     FrameOS.notify('Clocked in: ' .. Jobs[id].label)
 end
 
--- map icons for the job spots
-for id, job in pairs(Jobs) do
-    if job.spot then
-        local look = job.blip or { sprite = 280, color = 5 }
-        FrameOS.addBlip(job.spot.x, job.spot.y, job.spot.z, look.sprite, look.color, job.label)
+-- map icons for the job spots (redone whenever you move one)
+local function rebuildBlips()
+    FrameOS.removeBlips(blips)
+    blips = {}
+    for id, job in pairs(Jobs) do
+        local spot = spotOf(id)
+        if spot then
+            local look = job.blip or { sprite = 280, color = 5 }
+            local blip = FrameOS.addBlip(spot.x, spot.y, spot.z, look.sprite, look.color, job.label)
+            if blip then
+                table.insert(blips, blip)
+            end
+        end
     end
 end
+
+rebuildBlips()
 
 -- the clock: every second, see if you are working and count it
 CreateThread(function()
@@ -106,7 +129,8 @@ CreateThread(function()
             elseif handler.isActive() then
                 idleMs = 0
                 activeMs = activeMs + 1000
-                if activeMs >= job.every then
+                -- jobs without "every" are not paid by the timer (they pay in their own way)
+                if job.every and activeMs >= job.every then
                     activeMs = 0
                     local amount = math.random(job.pay.min, job.pay.max)
                     amount = math.floor(amount * rankFor(current, rep[current] or 0).bonus)
@@ -129,11 +153,12 @@ CreateThread(function()
         local ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
         for id, job in pairs(Jobs) do
-            if job.spot then
-                local dist = #(coords - vector3(job.spot.x, job.spot.y, job.spot.z))
+            local spot = spotOf(id)
+            if spot then
+                local dist = #(coords - vector3(spot.x, spot.y, spot.z))
                 if dist < 30.0 then
                     sleep = 0
-                    DrawMarker(1, job.spot.x, job.spot.y, job.spot.z - 1.0,
+                    DrawMarker(1, spot.x, spot.y, spot.z - 1.0,
                         0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                         1.5, 1.5, 0.6,
                         255, 200, 60, 150,
@@ -206,4 +231,27 @@ FrameOS.testCommand('job', 'clock in without walking to the spot, example: /job 
         table.sort(names)
         FrameOS.notify('Jobs: ' .. table.concat(names, ', '))
     end
+end)
+
+-- puts a job's clock-in spot where you stand. /exportpresets turns these into
+-- lines for data/jobs.lua.
+FrameOS.testCommand('setjobspot', 'moves a job clock-in spot to where you stand, example: /setjobspot pimp', function(source, args)
+    local id = args[1] and string.lower(args[1])
+    if not id or not Jobs[id] then
+        FrameOS.notify('Usage: /setjobspot <job>  (see /job)')
+        return
+    end
+    local coords = GetEntityCoords(PlayerPedId())
+    spots[id] = { x = coords.x, y = coords.y, z = coords.z }
+    FrameOS.save('jobspots', spots)
+    rebuildBlips()
+    FrameOS.notify('Spot saved for ' .. Jobs[id].label)
+end)
+
+FrameOS.addExport(function()
+    local lines = { '-- job spots: paste these at the bottom of data/jobs.lua instead of config.lua' }
+    for id, s in pairs(spots) do
+        table.insert(lines, string.format('Jobs.%s.spot = { x = %.2f, y = %.2f, z = %.2f }', id, s.x, s.y, s.z))
+    end
+    return lines
 end)

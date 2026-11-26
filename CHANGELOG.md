@@ -2,6 +2,14 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.2.0 - Pimping job
+- Pimping job (modules/jobs/pimp.lua), rewritten from scratch as a job-engine job: girls, customers, payday, problem customers, rival gangs
+- All pimping settings, ranks, ped models, names and text live in data/jobs.lua under Jobs.pimp
+- Paid per customer with a streak bonus; reputation rank sets how many girls work for you (2 to 5)
+- Engine: jobs without every are not paid by the timer, FrameOS.jobRank, rep never below 0
+- /setjobspot <job> places a clock-in spot where you stand, saved and included in /exportpresets
+- FrameOS.message: text-message style notification with a sender
+
 ## 1.1.0 - Job system and the Courier job
 - Job engine (modules/jobs.lua): clock in at a spot with E, one job at a time, payouts only while the job is active, idle clock-out, reputation and ranks, on-duty line under the cash counter
 - data/jobs.lua: jobs as plain data (label, kind, spot, pay, interval, ranks)

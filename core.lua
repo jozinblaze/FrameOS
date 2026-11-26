@@ -13,6 +13,22 @@ function FrameOS.notify(text)
     EndTextCommandThefeedPostTicker(false, false)
 end
 
+-- a text-message style notification with a sender name, for jobs and contacts.
+-- call it from a thread or event (it may wait a moment for the icon to load).
+function FrameOS.message(sender, subject, text)
+    RequestStreamedTextureDict('CHAR_DEFAULT', false)
+    local waited = 0
+    while not HasStreamedTextureDictLoaded('CHAR_DEFAULT') and waited < 1000 do
+        Wait(10)
+        waited = waited + 10
+    end
+    print('[FrameOS] ' .. sender .. ': ' .. text)
+    BeginTextCommandThefeedPost('STRING')
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandThefeedPostMessagetext('CHAR_DEFAULT', 'CHAR_DEFAULT', false, 4, sender, subject)
+    PlaySoundFrontend(-1, 'Text_Arrive_Tone', 'Phone_SoundSet_Default', true)
+end
+
 -- saves any table or value under a name (survives restarts)
 function FrameOS.save(key, value)
     SetResourceKvp('frameos_' .. key, json.encode(value))
