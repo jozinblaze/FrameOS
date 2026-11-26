@@ -67,10 +67,8 @@ local function respawn()
     FrameOS.restore(snap)
 
     -- the bill
-    local bill = math.min(Config.hospitalBill, FrameOS.getCash())
-    if bill > 0 then
-        FrameOS.takeCash(bill)
-    end
+    -- the server works out the bill (never more than you have) and takes it
+    FrameOS.request('hospitalBill')
 
     AnimpostfxStop('DeathFailOut')
     DoScreenFadeIn(800)

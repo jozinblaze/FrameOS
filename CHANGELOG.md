@@ -2,6 +2,14 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.4.0 - Server foundation, stage 2: money and purchases
+- Money, the bag, owned cars and job rank now live on the server (server/economy.lua); the client only shows what it is sent (FrameOS.data)
+- Buying items and cars, selling a car, using an item, cash pickups, the hospital bill and job pay are all requests the server checks: shop and position, stock, price, cooldowns, payout limits, an hourly job cap
+- One-time import of the cash, bag, cars and job rank saved on your own computer (capped, logged, only once)
+- givecash, setcash and giveitem go through the server and need admin; Config.admins and /myid
+- Cash changes show as +$ or -$ from one place
+- Every purchase, payout and refusal is written to logs/frameos.log
+
 ## 1.3.0 - Server foundation, stage 1
 - Server foundation, stage 1: server/core.lua with saved player data (one readable JSON file per player), a request system (FrameOS.onAsk / FrameOS.ask), rate limits, a log file and an admin check
 - Data files (config, items, vehicles, shops, jobs) now load on both the server and the client

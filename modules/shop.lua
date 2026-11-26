@@ -20,6 +20,17 @@ local function shopType(shop)
     return shop.type or 'vehicles'
 end
 
+-- the stock list a shop sells. shops saved long ago have none written down.
+local function stockOf(shop)
+    if shop.stock then
+        return shop.stock
+    end
+    if shopType(shop) == 'vehicles' then
+        return 'dealership'
+    end
+    return 'normal'
+end
+
 local function rebuild()
     shops = {}
     for id, shop in pairs(Config.shops) do
@@ -74,7 +85,7 @@ local function itemList(stockName)
     return list
 end
 
-local function browseItems(shop)
+local function browseItems(shop, id)
     browsing = true
     local ped = PlayerPedId()
     local list = itemList(shop.stock or 'normal')
@@ -122,9 +133,13 @@ local function browseItems(shop)
             index = index % #list + 1
         elseif IsControlJustPressed(0, 191) or IsControlJustPressed(0, 18) then   -- enter
             local entry = list[index]
-            -- canGive first so you aren't charged for something you can't take
-            if FrameOS.canGive(entry.name) and FrameOS.takeCash(entry.price) then
-                FrameOS.giveItem(entry.name, 1)
+            -- canGive first so you aren't charged for something you can't take.
+            -- the server checks the shop, the price and that you are standing there.
+            if FrameOS.canGive(entry.name) then
+                local answer = FrameOS.request('buyItem', id, entry.name, stockOf(shop))
+                if answer then
+                    FrameOS.applyItem(entry.name)
+                end
             end
         elseif IsControlJustPressed(0, 177) then                   -- backspace
             browsing = false
@@ -134,7 +149,7 @@ local function browseItems(shop)
     FreezeEntityPosition(PlayerPedId(), false)
 end
 
-local function browseVehicles(shop)
+local function browseVehicles(shop, id)
     browsing = true
     local ped = PlayerPedId()
     local cars = vehicleList(shop.stock or 'dealership')
@@ -204,8 +219,10 @@ local function browseVehicles(shop)
             index = (index - 2) % #cars + 1
             showCar()
         elseif IsControlJustPressed(0, 191) or IsControlJustPressed(0, 18) then   -- enter
-            if FrameOS.takeCash(car.price) then
-                bought = FrameOS.ownVehicle(car.model, car.name, car.price)   -- the saved car entry
+            -- the server charges you and makes the car (with its plate) if it all checks out
+            local answer = FrameOS.request('buyVehicle', id, car.model, stockOf(shop))
+            if answer then
+                bought = answer.car   -- the saved car entry
                 browsing = false
             end
         elseif IsControlJustPressed(0, 177) then                   -- backspace
@@ -262,9 +279,9 @@ CreateThread(function()
                         end
                         if IsControlJustPressed(0, 38) then   -- 38 is the E key
                             if isItems then
-                                browseItems(shop)
+                                browseItems(shop, id)
                             else
-                                browseVehicles(shop)
+                                browseVehicles(shop, id)
                             end
                         end
                     end

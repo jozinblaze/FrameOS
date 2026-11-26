@@ -17,7 +17,6 @@
 local handlers = {}                 -- job id -> the job's own behavior
 local spots = FrameOS.load('jobspots', {})   -- spots you placed in game: job id -> { x, y, z }
 local blips = {}                    -- map icons we made, so we can redo them
-local rep = FrameOS.load('jobrep', {})   -- job id -> reputation points
 local current = nil                 -- the job you are on duty for (resets on relog)
 local activeMs = 0                  -- active time since the last payout
 local idleMs = 0                    -- time since the job was last active
@@ -47,21 +46,33 @@ local function rankFor(id, points)
     return best
 end
 
--- your current rank table for a job, like { name = 'Rookie', rep = 0, bonus = 1.0 }
-function FrameOS.jobRank(id)
-    return rankFor(id, rep[id] or 0)
+-- your reputation for a job. the server keeps it, FrameOS.data.jobrep is what it sent us.
+local function repOf(id)
+    return FrameOS.data.jobrep[id] or 0
 end
 
--- gives pay and reputation. every job payout goes through here.
--- amount can be 0 to give only reputation, points can be negative (rep never goes below 0).
+-- your current rank table for a job, like { name = 'Rookie', rep = 0, bonus = 1.0 }
+function FrameOS.jobRank(id)
+    return rankFor(id, repOf(id))
+end
+
+-- asks the server for pay and reputation. every job payout goes through here.
+-- amount can be 0 to ask for only reputation, points can be negative (rep never goes below 0).
+-- the server checks it against the job's data (see jobPay in server/economy.lua),
+-- so a payout that is too big or too fast is refused.
 function FrameOS.jobPay(id, amount, points)
-    local before = rankFor(id, rep[id] or 0)
-    rep[id] = math.max(0, (rep[id] or 0) + (points or 0))
-    FrameOS.save('jobrep', rep)
-    FrameOS.addCash(amount)
-    local after = rankFor(id, rep[id])
-    if after.name ~= before.name then
-        FrameOS.notify('New rank: ' .. after.name .. ' ' .. Jobs[id].label)
+    local before = rankFor(id, repOf(id))
+    local answer
+    if amount > 0 then
+        answer = FrameOS.request('jobPay', id, amount, points or 0)
+    else
+        answer = FrameOS.request('jobRep', id, points or 0)
+    end
+    if answer then
+        local after = rankFor(id, answer.rep)
+        if after.name ~= before.name then
+            FrameOS.notify('New rank: ' .. after.name .. ' ' .. Jobs[id].label)
+        end
     end
 end
 
@@ -135,7 +146,7 @@ CreateThread(function()
                 if job.every and activeMs >= job.every then
                     activeMs = 0
                     local amount = math.random(job.pay.min, job.pay.max)
-                    amount = math.floor(amount * rankFor(current, rep[current] or 0).bonus)
+                    amount = math.floor(amount * FrameOS.jobRank(current).bonus)
                     FrameOS.jobPay(current, amount, job.repPerPay)
                 end
             else
@@ -190,7 +201,7 @@ end)
 CreateThread(function()
     while true do
         if current then
-            local rank = rankFor(current, rep[current] or 0)
+            local rank = FrameOS.jobRank(current)
             SetTextFont(4)
             SetTextScale(0.4, 0.4)
             SetTextColour(255, 220, 80, 230)
@@ -217,7 +228,7 @@ end)
 
 FrameOS.command('jobstats', 'shows your rank and reputation for every job', function()
     for id, job in pairs(Jobs) do
-        local points = rep[id] or 0
+        local points = repOf(id)
         FrameOS.notify(job.label .. ': ' .. rankFor(id, points).name .. ' (' .. points .. ' rep)')
     end
 end)

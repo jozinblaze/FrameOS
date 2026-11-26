@@ -16,6 +16,7 @@ shared_scripts {
 -- the server side. server/core.lua must come first.
 server_scripts {
     'server/core.lua',
+    'server/economy.lua',
     'server.lua',
 }
 

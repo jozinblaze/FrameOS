@@ -1,10 +1,9 @@
 -- cash: a money counter in the top right.
--- other modules use these three:
---   FrameOS.getCash()        how much you have
---   FrameOS.addCash(amount)  gives you money
---   FrameOS.takeCash(amount) takes money, returns false if you can't afford it
-
-local cash = FrameOS.load('cash', Config.startCash)
+-- the server owns your money. this only shows the number it sent (FrameOS.data.cash).
+-- to earn or spend, a module asks the server for something specific (buy, pickup, job pay),
+-- see server/economy.lua. there is no "add cash" for the client any more.
+--   FrameOS.getCash()       how much you have (as of the last thing the server sent)
+--   FrameOS.formatMoney(n)  turns 1250 into $1,250
 
 -- turns 1250 into $1,250
 local function formatMoney(amount)
@@ -16,36 +15,10 @@ local function formatMoney(amount)
     return '$' .. text
 end
 
--- other modules use this to show prices
 FrameOS.formatMoney = formatMoney
 
 function FrameOS.getCash()
-    return cash
-end
-
-function FrameOS.addCash(amount)
-    amount = math.floor(amount)   -- whole dollars only
-    if amount <= 0 then
-        return   -- taking money goes through takeCash
-    end
-    cash = cash + amount
-    FrameOS.save('cash', cash)
-    FrameOS.notify('+' .. formatMoney(amount))
-end
-
-function FrameOS.takeCash(amount)
-    amount = math.floor(amount)
-    if amount <= 0 then
-        return true   -- nothing to pay
-    end
-    if cash < amount then
-        FrameOS.notify('Not enough cash')
-        return false
-    end
-    cash = cash - amount
-    FrameOS.save('cash', cash)
-    FrameOS.notify('-' .. formatMoney(amount))
-    return true
+    return FrameOS.data.cash
 end
 
 -- draws the counter every frame
@@ -59,29 +32,27 @@ CreateThread(function()
         SetTextRightJustify(true)
         SetTextWrap(0.0, 0.985)
         BeginTextCommandDisplayText('STRING')
-        AddTextComponentSubstringPlayerName(formatMoney(cash))
+        AddTextComponentSubstringPlayerName(formatMoney(FrameOS.data.cash))
         EndTextCommandDisplayText(0.0, 0.03)
     end
 end)
 
--- these two are for testing. Config.testCommands = false turns them off.
-if Config.testCommands then
-    FrameOS.testCommand('givecash', 'adds money, example: /givecash 1000', function(source, args)
-        local amount = tonumber(args[1])
-        if amount then
-            FrameOS.addCash(amount)
-        else
-            FrameOS.notify('Usage: /givecash <amount>')
-        end
-    end)
+-- these two are for testing, and the server only allows admins to use them.
+-- Config.testCommands = false turns them off.
+FrameOS.testCommand('givecash', 'adds money (admins), example: /givecash 1000', function(source, args)
+    local amount = tonumber(args[1])
+    if amount then
+        FrameOS.request('admin', 'givecash', amount)
+    else
+        FrameOS.notify('Usage: /givecash <amount>')
+    end
+end)
 
-    FrameOS.testCommand('setcash', 'sets your money, example: /setcash 0', function(source, args)
-        local amount = tonumber(args[1])
-        if amount then
-            cash = math.max(0, math.floor(amount))
-            FrameOS.save('cash', cash)
-        else
-            FrameOS.notify('Usage: /setcash <amount>')
-        end
-    end)
-end
+FrameOS.testCommand('setcash', 'sets your money (admins), example: /setcash 0', function(source, args)
+    local amount = tonumber(args[1])
+    if amount then
+        FrameOS.request('admin', 'setcash', amount)
+    else
+        FrameOS.notify('Usage: /setcash <amount>')
+    end
+end)

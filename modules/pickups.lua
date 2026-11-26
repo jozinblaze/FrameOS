@@ -21,8 +21,9 @@ local kinds = {
     },
     cash = {
         marker = 29, r = 60, g = 220, b = 90,
-        give = function()
-            FrameOS.addCash(Config.pickupCash)
+        -- the server decides if you really get it (position, cooldown) and how much
+        give = function(pickup)
+            FrameOS.request('pickupCash', pickup.key)
         end,
     },
 }
@@ -36,11 +37,12 @@ local all = {}
 
 local function rebuild()
     all = {}
-    for _, p in ipairs(Config.pickups) do
-        table.insert(all, { kind = p.kind, x = p.x, y = p.y, z = p.z, readyAt = 0 })
+    -- key is how the server knows which pickup it is: c = from the config, m = made in game
+    for index, p in ipairs(Config.pickups) do
+        table.insert(all, { kind = p.kind, x = p.x, y = p.y, z = p.z, readyAt = 0, key = 'c' .. index })
     end
-    for _, p in ipairs(mine) do
-        table.insert(all, { kind = p.kind, x = p.x, y = p.y, z = p.z, readyAt = 0 })
+    for index, p in ipairs(mine) do
+        table.insert(all, { kind = p.kind, x = p.x, y = p.y, z = p.z, readyAt = 0, key = 'm' .. index })
     end
 end
 
@@ -66,7 +68,7 @@ CreateThread(function()
                         true, false, 2, true, nil, nil, false)
 
                     if dist < 2.0 then
-                        kind.give()
+                        kind.give(p)
                         local wait = Config.pickupRespawn
                         if p.kind == 'cash' then
                             wait = Config.pickupCashRespawn

@@ -190,7 +190,11 @@ RegisterNetEvent('frameos:join', function()
         end
         FrameOS.log('join', source, 'data loaded')
     end
-    TriggerClientEvent('frameos:joined', source)
+    -- tell the client whether its old saves were copied up yet, then send its data
+    TriggerClientEvent('frameos:joined', source, records[source].data.imported)
+    if FrameOS.push then
+        FrameOS.push(source)
+    end
 end)
 
 -- ---------------------------------------------------------------- asking

@@ -144,6 +144,12 @@ Config.hospitals = {
     { name = 'Central', x = 337.39,  y = -1393.26, z = 32.51, h = 0.0 },
     { name = 'Paleto',  x = -245.25, y = 6328.88,  z = 32.43, h = 0.0 },
 }
+-- server checks on money. the first time you join, the cash you already had is copied
+-- up to the server (once), and it is capped at this much.
+Config.importCashMax = 250000
+-- the most a player can earn from jobs in one hour. a safety net, not a design limit.
+Config.jobHourlyCap = 30000
+
 Config.hospitalBill = 250       -- most you pay (you never go below $0)
 Config.respawnDelay = 4000      -- how long the death screen shows (milliseconds)
 Config.deathText = 'WASTED'

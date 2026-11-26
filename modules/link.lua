@@ -35,6 +35,74 @@ RegisterNetEvent('frameos:answer', function(id, ok, result)
     end
 end)
 
+-- like FrameOS.ask, but it also tells the player if the server said no.
+-- returns the answer table when it worked, or nil when it did not.
+function FrameOS.request(name, ...)
+    local sent, answer = FrameOS.ask(name, ...)
+    if not sent then
+        FrameOS.notify('Server: ' .. tostring(answer))
+        return nil
+    end
+    if type(answer) == 'table' and answer.ok == false then
+        FrameOS.notify(answer.why or 'Refused')
+        return nil
+    end
+    return answer
+end
+
+-- everything the server keeps for us (cash, bank, bag, owned cars, job rank).
+-- the server sends the whole thing after every change, we only show it.
+FrameOS.data = { cash = 0, bank = 0, bag = {}, owned = {}, jobrep = {} }
+local dataLoaded = false
+
+RegisterNetEvent('frameos:data', function(newData)
+    local before = FrameOS.data.cash
+    FrameOS.data = newData
+    -- a change in cash shows as +$ or -$
+    if dataLoaded and newData.cash ~= before then
+        local difference = newData.cash - before
+        local sign = '+'
+        if difference < 0 then
+            sign = '-'
+        end
+        FrameOS.notify(sign .. FrameOS.formatMoney(math.abs(difference)))
+    end
+    dataLoaded = true
+end)
+
+-- the first time on the server: copy what was saved on this computer up to it (once)
+RegisterNetEvent('frameos:joined', function(imported)
+    if imported then
+        return
+    end
+    CreateThread(function()
+        -- items that were renamed in v0.8.0 keep working: old name -> new name
+        local renamed = {
+            tosti = 'burger', water_bottle = 'water', kurkakola = 'ecola',
+            twerks_candy = 'candy_bar', snikkel_candy = 'sprunk', beer = 'pisswasser',
+        }
+        local oldBag = FrameOS.load('inventory', nil)
+        local bag = nil
+        if oldBag then
+            bag = {}
+            for name, count in pairs(oldBag) do
+                local newName = renamed[name] or name
+                bag[newName] = (bag[newName] or 0) + count
+            end
+        end
+        local payload = {
+            cash = FrameOS.load('cash', nil),
+            bag = bag,
+            owned = FrameOS.load('owned', nil),
+            jobrep = FrameOS.load('jobrep', nil),
+        }
+        local answer = FrameOS.request('import', payload)
+        if answer then
+            FrameOS.notify('Your saves were copied to the server')
+        end
+    end)
+end)
+
 -- say hello to the server when we start, so it loads our data
 CreateThread(function()
     Wait(1000)
