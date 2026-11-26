@@ -66,6 +66,11 @@ Jobs = {
                            'a_m_y_skater_01', 'a_m_m_afriamer_01', 'a_m_m_bevhills_01', 'a_m_m_salton_01' },
         rivalModels    = { 'g_m_y_ballasout_01', 'g_m_y_ballaeast_01', 'g_m_y_ballaorig_01' },
         rivalWeapons   = { 'WEAPON_PISTOL', 'WEAPON_KNIFE', 'WEAPON_BAT' },
+        -- what they do while they stand around. these are the game's own scenario names,
+        -- swap them for others (WORLD_HUMAN_SMOKING, WORLD_HUMAN_STAND_MOBILE ...) to change it.
+        girlWaiting  = { 'WORLD_HUMAN_PROSTITUTE_HIGH_CLASS', 'WORLD_HUMAN_PROSTITUTE_LOW_CLASS' },
+        girlTalking  = { 'WORLD_HUMAN_HANG_OUT_STREET', 'WORLD_HUMAN_STAND_MOBILE' },
+        customerIdle = { 'WORLD_HUMAN_STAND_IMPATIENT', 'WORLD_HUMAN_SMOKING', 'WORLD_HUMAN_STAND_MOBILE' },
         names = { 'Roxy', 'Dixie', 'Vera', 'Mimi', 'Pearl', 'Tina', 'Gigi', 'Lola', 'Cleo', 'Dina', 'Nova', 'Sasha' },
         -- what the girls say. one line is picked at random from each list.
         text = {

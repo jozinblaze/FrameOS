@@ -144,9 +144,11 @@ Config.hospitals = {
     { name = 'Central', x = 337.39,  y = -1393.26, z = 32.51, h = 0.0 },
     { name = 'Paleto',  x = -245.25, y = 6328.88,  z = 32.43, h = 0.0 },
 }
--- server checks on money. the first time you join, the cash you already had is copied
--- up to the server (once), and it is capped at this much.
-Config.importCashMax = 250000
+-- the first time you join, what you had saved on your own computer (cash, bag, cars,
+-- job rank) is copied up to the server, once. the server cannot verify that copy, so
+-- turn this OFF before you share the server with other people.
+Config.importEnabled = true
+Config.importCashMax = 2000000   -- the most cash that copy can bring
 -- the most a player can earn from jobs in one hour. a safety net, not a design limit.
 Config.jobHourlyCap = 30000
 

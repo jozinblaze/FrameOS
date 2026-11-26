@@ -135,12 +135,12 @@ FrameOS.onAsk('import', function(source, payload)
     if d.imported then
         return no('already imported')
     end
-    if type(payload) ~= 'table' then
+    if type(payload) ~= 'table' or Config.importEnabled == false then
         payload = {}
     end
 
     if type(payload.cash) == 'number' then
-        d.cash = math.max(0, math.min(math.floor(payload.cash), Config.importCashMax or 250000))
+        d.cash = math.max(0, math.min(math.floor(payload.cash), Config.importCashMax or 2000000))
     end
     if type(payload.bag) == 'table' then
         for name, count in pairs(payload.bag) do
@@ -151,8 +151,13 @@ FrameOS.onAsk('import', function(source, payload)
     end
     if type(payload.owned) == 'table' then
         for _, car in ipairs(payload.owned) do
-            if type(car) == 'table' and Vehicles[car.model] then
-                local made = newCar(d, car.model, Vehicles[car.model].name, type(car.price) == 'number' and car.price or Vehicles[car.model].price)
+            -- a car is kept even if it is not in data/vehicles.lua (an older or custom car).
+            -- the only thing checked is that the model name looks like a model name.
+            if type(car) == 'table' and type(car.model) == 'string' and car.model:match('^[%w_]+$') and #car.model <= 32 then
+                local known = Vehicles[car.model]
+                local made = newCar(d, car.model,
+                    (type(car.name) == 'string' and car.name) or (known and known.name) or car.model,
+                    (type(car.price) == 'number' and car.price) or (known and known.price) or 0)
                 if type(car.plate) == 'string' and #car.plate <= 8 then
                     made.plate = car.plate
                 end
@@ -399,6 +404,12 @@ FrameOS.onAsk('admin', function(source, action, a, b)
         d.cash = math.max(0, math.floor(a))
         FrameOS.markDirty(source)
         FrameOS.log('cash', source, 'admin setcash ' .. d.cash)
+        FrameOS.push(source)
+    elseif action == 'givecar' and type(a) == 'string' and a:match('^[%w_]+$') and #a <= 32 then
+        local known = Vehicles[a]
+        local car = newCar(d, a, (known and known.name) or a, (known and known.price) or tonumber(b) or 0)
+        FrameOS.markDirty(source)
+        FrameOS.log('car', source, 'admin givecar ' .. a .. ' plate ' .. car.plate)
         FrameOS.push(source)
     elseif action == 'giveitem' and Items[a] then
         d.bag[a] = (d.bag[a] or 0) + (math.floor(tonumber(b) or 1))

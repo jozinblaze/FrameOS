@@ -32,6 +32,7 @@ Vehicles = {
     ruiner    = { name = 'Ruiner',      price = 20000, category = 'Muscle' },
     vigero    = { name = 'Vigero',      price = 21000, category = 'Muscle' },
     buccaneer = { name = 'Buccaneer',   price = 29000, category = 'Muscle' },
+    ellie     = { name = 'Ellie',      price = 50000, category = 'Muscle' },
     gauntlet  = { name = 'Gauntlet',    price = 32000, category = 'Muscle' },
     dominator = { name = 'Dominator',   price = 35000, category = 'Muscle' },
 

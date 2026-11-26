@@ -108,6 +108,15 @@ local function release(ped)
     end
 end
 
+-- makes a ped stand around doing something (a scenario from the lists in data/jobs.lua)
+-- instead of standing stiff. the game's own scenarios, like smoking or leaning.
+local function idle(ped, list)
+    if ped and DoesEntityExist(ped) and list and #list > 0 then
+        ClearPedTasks(ped)
+        TaskStartScenarioInPlace(ped, pick(list), 0, true)
+    end
+end
+
 -- the car you are driving, but only if you are stopped next to this girl
 -- and the passenger seat is free
 local function pickupVehicle(girl)
@@ -146,6 +155,8 @@ local function finishCustomer(girl)
     end
     girl.rivals = nil
     girl.state = 'rest'
+    girl.idled = false
+    girl.restSince = GetGameTimer()
     girl.untilTime = GetGameTimer() + math.random(20000, 60000)
 end
 
@@ -161,6 +172,7 @@ local function spawnGirl(girl)
         return
     end
     girl.blip = blipOn(girl.ped, 3, 'Girl')
+    idle(girl.ped, job.girlWaiting)
     girl.bornAt = GetGameTimer()
     girl.state = 'waiting'
     say(girl, job.text.pickup)
@@ -176,6 +188,7 @@ local function startRide(girl)
         return
     end
     girl.cblip = blipOn(girl.customer, 2, 'Customer')
+    idle(girl.customer, job.customerIdle)
     girl.state = 'ride'
     say(girl, job.text.customer)
 end
@@ -265,6 +278,7 @@ local function step(girl)
             girl.vehicle = vehicle
             girl.after = state                      -- what to do once she is in the car
             girl.deadline = now + 10000
+            ClearPedTasks(girl.ped)   -- stop the standing-around animation first
             TaskEnterVehicle(girl.ped, vehicle, 8000, 0, 1.0, 1, 0)
             girl.state = 'boarding'
         end
@@ -302,6 +316,7 @@ local function step(girl)
             TaskLeaveVehicle(girl.ped, girl.vehicle, 0)
             girl.walkAt = now + 1500
             girl.untilTime = now + math.random(40000, 100000)
+            girl.talking = false
             showBlip(girl.cblip, false)
             girl.state = 'working'
             say(girl, job.text.away)
@@ -312,6 +327,12 @@ local function step(girl)
             local at = GetEntityCoords(girl.customer)
             TaskGoToCoordAnyMeans(girl.ped, at.x, at.y, at.z, 1.0, 0, false, 786603, -1.0)
             girl.walkAt = nil
+        end
+        -- once she is next to him, the two of them stand and talk
+        if not girl.talking and not girl.walkAt and girl.customer
+            and #(GetEntityCoords(girl.ped) - GetEntityCoords(girl.customer)) < 3.0 then
+            girl.talking = true
+            idle(girl.ped, job.girlTalking)
         end
         if now >= girl.untilTime then
             local roll = math.random(1, 100)
@@ -325,6 +346,7 @@ local function step(girl)
                 girl.cblip = nil
                 release(girl.customer)
                 girl.state = 'collect'
+                idle(girl.ped, job.girlWaiting)
                 showBlip(girl.blip, true)
                 say(girl, job.text.ready)
             end
@@ -376,6 +398,11 @@ local function step(girl)
         end
 
     elseif state == 'rest' then
+        -- a few seconds after leaving the car, she goes back to standing around
+        if not girl.idled and now - girl.restSince > 3000 then
+            girl.idled = true
+            idle(girl.ped, job.girlWaiting)
+        end
         if now >= girl.untilTime then
             girl.state = 'waiting'
             showBlip(girl.blip, true)

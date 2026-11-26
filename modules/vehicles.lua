@@ -24,6 +24,19 @@ FrameOS.command('mycar', 'brings out one of your cars, example: /mycar 2', funct
     end
 end)
 
+-- gives you a car for free (admins). the car does not have to be in data/vehicles.lua,
+-- any model the game has works, example: /givecar ellie
+FrameOS.testCommand('givecar', 'gives you a car (admins), example: /givecar ellie', function(source, args)
+    local model = args[1] and string.lower(args[1])
+    if not model or not IsModelInCdimage(joaat(model)) or not IsModelAVehicle(joaat(model)) then
+        FrameOS.notify('Usage: /givecar <model>  (the game has to know the model)')
+        return
+    end
+    if FrameOS.request('admin', 'givecar', model, tonumber(args[2])) then
+        FrameOS.notify('Added ' .. model .. ' to your cars')
+    end
+end)
+
 -- selling needs "confirm" on the end so a typo can't sell a car
 FrameOS.command('sellcar', 'sells a car for half its price, example: /sellcar 2 confirm', function(source, args)
     local number = tonumber(args[1])

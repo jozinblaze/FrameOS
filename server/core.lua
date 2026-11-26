@@ -118,6 +118,12 @@ local function loadRecord(source)
         data = nil
     end
 
+    -- a copy of the file as it was when the player loaded in, one per day, so a bad
+    -- update or a mistake can always be rolled back (playerdata/backups/)
+    if raw and data then
+        SaveResourceFile(resource, 'playerdata/backups/' .. id:gsub('[^%w]', '_') .. '-' .. os.date('%Y%m%d') .. '.json', raw, -1)
+    end
+
     local fresh = (data == nil)
     data = data or defaults()
     for key, value in pairs(defaults()) do

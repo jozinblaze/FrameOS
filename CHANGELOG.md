@@ -2,6 +2,14 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.4.1 - Data safety and pimp animations
+- Import no longer throws data away: cars are kept even if the model is not in the Vehicles list, and the cash cap is a setting (Config.importCashMax, default 2,000,000)
+- Config.importEnabled: turn the import OFF before sharing the server
+- Daily backup of every player file in playerdata/backups/
+- Admin /givecar <model> [price] to put a car in someone's garage (restore a lost car)
+- Added the Ellie to data/vehicles.lua
+- Pimp job: girls and customers now play scenario animations while waiting, riding to pickup, collecting and talking (lists in data/jobs.lua, swappable)
+
 ## 1.4.0 - Server foundation, stage 2: money and purchases
 - Money, the bag, owned cars and job rank now live on the server (server/economy.lua); the client only shows what it is sent (FrameOS.data)
 - Buying items and cars, selling a car, using an item, cash pickups, the hospital bill and job pay are all requests the server checks: shop and position, stock, price, cooldowns, payout limits, an hourly job cap
