@@ -6,7 +6,9 @@
 --   kind      'legit' or 'criminal'. criminal jobs will draw police attention
 --             once the heat system exists (nothing uses this yet)
 --   spot      { x, y, z } where you walk up and press E to clock in or out
---   blip      { sprite = , color = } the map icon (optional)
+--   blip      { sprite = , color = } the map icon (optional). criminal jobs never get one:
+--             their spot stays off the map, and the girl and customer blips of a job
+--             only exist on your own screen while you are working
 --   pay       { min = , max = } what one payout is before your rank bonus
 --   every     real milliseconds of ACTIVE work between payouts (60000 = 1 minute)
 --   repPerPay reputation you earn with each payout (rank comes from reputation)
@@ -41,7 +43,6 @@ Jobs = {
     -- the spot is not set yet: stand where you want it and use /setjobspot pimp
     pimp = {
         label = 'Pimping', kind = 'criminal',
-        blip = { sprite = 280, color = 1 },
         pay = { min = 100, max = 150 }, repPerPay = 10,
         streakBonus = 20, streakCap = 200,       -- extra per customer in a row (lost when you fail)
         problemChance = 8,                       -- percent of customers that refuse to pay

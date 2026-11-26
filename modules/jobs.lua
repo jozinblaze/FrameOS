@@ -104,7 +104,9 @@ local function rebuildBlips()
     blips = {}
     for id, job in pairs(Jobs) do
         local spot = spotOf(id)
-        if spot then
+        -- criminal jobs never get a map icon at their spot. later, with police, nobody
+        -- should be able to just watch the map for where crime starts.
+        if spot and job.kind ~= 'criminal' then
             local look = job.blip or { sprite = 280, color = 5 }
             local blip = FrameOS.addBlip(spot.x, spot.y, spot.z, look.sprite, look.color, job.label)
             if blip then

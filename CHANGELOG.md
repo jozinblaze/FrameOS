@@ -2,6 +2,9 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.2.2 - Criminal job spots are hidden
+- Criminal jobs get no map icon at their clock-in spot (nobody can watch the map for crime); their girl and customer blips are local to your screen while you work
+
 ## 1.2.1 - Pimping job fixes
 - Pimping peds are local-only (not networked), so players at the same pickup cannot get doubled or desynced peds
 - A girl that spawns dead, vanishes, or dies while waiting is replaced quietly and your streak stays
