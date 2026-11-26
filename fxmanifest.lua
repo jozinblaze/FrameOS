@@ -1,18 +1,27 @@
 fx_version 'cerulean'
 game 'gta5'
 
--- load order matters: config, the data lists and core first, then the modules.
--- to add a module, put a file in modules/ and add a line here.
+-- load order matters. to add a client module, put a file in modules/ and add a line here.
 -- (outfit comes before basics on purpose, see the spawn note in core.lua)
-server_script 'server.lua'
 
-client_scripts {
+-- these load on BOTH sides, so the server can check real prices and settings
+shared_scripts {
     'config.lua',
     'data/items.lua',
     'data/vehicles.lua',
     'data/shops.lua',
     'data/jobs.lua',
+}
+
+-- the server side. server/core.lua must come first.
+server_scripts {
+    'server/core.lua',
+    'server.lua',
+}
+
+client_scripts {
     'core.lua',
+    'modules/link.lua',        -- talking to the server, right after core
     'modules/world.lua',
     'modules/hud.lua',
     'modules/outfit.lua',

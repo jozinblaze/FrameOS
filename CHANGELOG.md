@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.3.0 - Server foundation, stage 1
+- Server foundation, stage 1: server/core.lua with saved player data (one readable JSON file per player), a request system (FrameOS.onAsk / FrameOS.ask), rate limits, a log file and an admin check
+- Data files (config, items, vehicles, shops, jobs) now load on both the server and the client
+- Config.admins and /myid; the preset export checks FrameOS.isAdmin
+- Test command /serverstatus shows what the server has saved for you
+- Nothing is moved to the server yet: cash, items, cars and jobs still save on your computer until the next stages
+
 ## 1.2.2 - Criminal job spots are hidden
 - Criminal jobs get no map icon at their clock-in spot (nobody can watch the map for crime); their girl and customer blips are local to your screen while you work
 

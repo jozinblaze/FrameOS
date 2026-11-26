@@ -4,8 +4,8 @@
 RegisterNetEvent('frameos:savePresets', function(text)
     local player = source
 
-    -- only admins can write files (the "command" permission in server.cfg)
-    if not IsPlayerAceAllowed(player, 'command') then
+    -- only admins can write files (see FrameOS.isAdmin in server/core.lua)
+    if not FrameOS.isAdmin(player) and not IsPlayerAceAllowed(player, 'command') then
         print('[FrameOS] ' .. GetPlayerName(player) .. ' tried to export presets without permission')
         return
     end

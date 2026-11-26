@@ -22,6 +22,12 @@ Config.weatherPool = {
 -- 2000 is the game's normal speed, a bigger number is slower, 0 freezes the clock.
 Config.msPerGameMinute = 2000
 
+-- admins: the license ids that count as admins on the server (they can use the
+-- commands that touch money and items). type /myid in game to get yours, then
+-- paste it here, like { 'license:0123abcd...' }. you can also give the permission
+-- frameos.admin in server.cfg instead.
+Config.admins = {}
+
 -- one switch for everything that is for testing or building, not for playing:
 -- cheats (heal, god, givecash, car...), teleports, ped and clothes tools,
 -- time and weather, IPL tools, and the placing tools (setshop, addpickup, exportpresets...).
