@@ -2,6 +2,12 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.6.1 - Storage fixes from testing
+- Shift+Enter in storage now moves as many as fit instead of failing with 'bad request' on a big stack; the server limit per move is 1,000,000
+- Glovebox prompt only shows when the car is nearly stopped (no distracting prompt while driving)
+- Shorter help line in the storage menu so it no longer cuts off
+- Removed the duplicate Config.testCommands line in config.lua
+
 ## 1.6.0 - Storage: bag weight, trunks, gloveboxes, stashes
 - Storage: one container idea (a list of item -> count kept on the server) used for your bag, car trunks, car gloveboxes and safehouse stashes
 - Weight limits (data/storage.lua): bag 30 kg, glovebox 5 kg, trunk by vehicle category, stash 100 kg; shops refuse when your bag is too heavy

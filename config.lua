@@ -33,7 +33,6 @@ Config.admins = {}
 -- time and weather, IPL tools, and the placing tools (setshop, addpickup, exportpresets...).
 -- set this to false for the live server. the player commands stay (inv, use, mycars, respawn, hud).
 Config.testCommands = true
-Config.testCommands = true
 
 -- map icons for shops, safehouses, hospitals and your car. false turns them all off.
 Config.showBlips = true

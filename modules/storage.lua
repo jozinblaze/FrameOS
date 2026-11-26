@@ -100,8 +100,8 @@ function FrameOS.openStorage(kind, ref)
             bagList, indexBag, panel == 'bag', 0.33)
         drawColumn(box.label, kg(box.weight) .. ' / ' .. kg(box.size) .. ' kg',
             boxList, indexBox, panel == 'box', 0.67)
-        FrameOS.drawText('Left / Right list     Up / Down choose     Enter move one     Shift+Enter move all     Backspace leave',
-            0.5, 0.74, 0.38, true)
+        FrameOS.drawText('Left/Right list   Up/Down choose   Enter one   Shift+Enter all   Backspace leave',
+            0.5, 0.74, 0.34, true)
 
         if IsControlJustPressed(0, 174) or IsControlJustPressed(0, 175) then
             panel = panel == 'bag' and 'box' or 'bag'
@@ -123,12 +123,30 @@ function FrameOS.openStorage(kind, ref)
             local list = panel == 'bag' and bagList or boxList
             local entry = list[panel == 'bag' and indexBag or indexBox]
             if entry then
-                local count = IsControlPressed(0, 21) and entry.count or 1   -- 21 is shift
+                local count = 1
+                if IsControlPressed(0, 21) then   -- 21 is shift: move as many as fit
+                    count = entry.count
+                    local weight = Items[entry.name] and Items[entry.name].weight or 0
+                    if weight > 0 then
+                        local room
+                        if panel == 'bag' then
+                            room = box.size - box.weight
+                        else
+                            room = Config.bagWeight - weightOf(FrameOS.data.bag)
+                        end
+                        count = math.min(count, math.floor((room + 0.0001) / weight))
+                    end
+                end
+                if count < 1 then
+                    FrameOS.notify('Not enough room')
+                    goto skip
+                end
                 local answer = FrameOS.request('storageMove', kind, ref, panel == 'bag' and 'in' or 'out', entry.name, count)
                 if answer then
                     box = answer
                 end
             end
+            ::skip::
         elseif IsControlJustPressed(0, 177) then
             using = false
         end
@@ -173,7 +191,8 @@ CreateThread(function()
         if not using and not IsEntityDead(ped) then
             if IsPedInAnyVehicle(ped, false) then
                 local car, plate = ownedCar(GetVehiclePedIsIn(ped, false))
-                if car then
+                -- only offer it when the car is nearly stopped, the prompt is distracting while driving
+                if car and GetEntitySpeed(GetVehiclePedIsIn(ped, false)) < 1.0 then
                     sleep = 0
                     FrameOS.help('Press ~INPUT_DETONATE~ to open the glovebox')
                     if IsControlJustPressed(0, 47) then   -- 47 is the G key

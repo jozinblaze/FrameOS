@@ -95,7 +95,7 @@ FrameOS.onAsk('storageMove', function(source, kind, ref, direction, name, count)
         return no(size)
     end
     count = math.floor(tonumber(count) or 0)
-    if type(name) ~= 'string' or count < 1 or count > 10000 then
+    if type(name) ~= 'string' or count < 1 or count > 1000000 then
         return no('Bad request')
     end
     local contents = box(d, id)
