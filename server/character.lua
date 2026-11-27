@@ -32,6 +32,17 @@ local function whole(value, low, high, default)
     return math.floor(n + 0.5)
 end
 
+-- is this a number from a parent list ({ { number, name }, ... })? otherwise the first one in the list
+local function parent(value, list)
+    value = tonumber(value)
+    for _, entry in ipairs(list) do
+        if entry[1] == value then
+            return value
+        end
+    end
+    return list[1][1]
+end
+
 local function round(n)
     return math.floor(n * 100 + 0.5) / 100
 end
@@ -67,8 +78,8 @@ function FrameOS.cleanCharacter(p)
         name = { first = first, last = last },
         sex = p.sex,
         look = {
-            mother = whole(look.mother, C.mothers.first, C.mothers.last, C.mothers.first),
-            father = whole(look.father, C.fathers.first, C.fathers.last, C.fathers.first),
+            mother = parent(look.mother, C.mothers),
+            father = parent(look.father, C.fathers),
             shapeMix = round(number(look.shapeMix, 0, 1, 0.5)),
             skinMix = round(number(look.skinMix, 0, 1, 0.5)),
             features = {},

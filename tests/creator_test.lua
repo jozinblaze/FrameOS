@@ -82,6 +82,11 @@ check(model == 'mp_f_freemode_01', 'Gender change switches to the female freemod
 tap(DOWN); tap(ENTER)  -- Parents
 tap(RIGHT)
 check(last('SetPedHeadBlendData')[2] == 22, 'Mother changes the head blend (mother face 22)')
+for _ = 1, 20 do tap(RIGHT) end   -- 21 steps in all: past 41, to the special mother 45
+check(last('SetPedHeadBlendData')[2] == 45, 'the Mother row reaches the special mother 45 at the end of the list')
+tap(RIGHT)
+check(last('SetPedHeadBlendData')[2] == 21, '... and wraps back to the start')
+tap(RIGHT)
 tap(DOWN); tap(DOWN); tap(RIGHT)
 check(math.abs(last('SetPedHeadBlendData')[8] - 0.55) < 1e-9, 'the face mix slider moves 5%')
 tap(BACK)

@@ -2,6 +2,12 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## v1.9.1: Every parent face, with names
+- The creator now offers every parent face the game has, with names: fathers 0 to 20 plus John, Niko and Claude (42 to 44), mothers 21 to 41 plus Misty (45)
+- Parent lists live in data/character.lua as { number, name }; the server only accepts numbers from those lists
+- CHANGELOG.md repaired: it was missing the entries for 1.6.2 to 1.9.0
+- tests: parent checks and a creator test that walks the Mother row to the special mother and back
+
 ## v1.9.0: Freemode character and creator
 - Character creator opens on first join: name, gender, parents, 20 face sliders, skin overlays, hair, eyes, makeup, starting outfit
 - Character saved on the server (d.character); server/character.lua checks every number against data/character.lua

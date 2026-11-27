@@ -13,9 +13,22 @@
 Config.character = {
     models = { m = 'mp_m_freemode_01', f = 'mp_f_freemode_01' },
 
-    -- the face "parents". the game numbers its mother faces 21 to 41 and its father faces 0 to 20.
-    mothers = { first = 21, last = 41 },
-    fathers = { first = 0, last = 20 },
+    -- the face "parents": { the game's number, the name the creator shows }. the game's father faces are
+    -- 0 to 20 plus the specials 42 to 44, its mother faces are 21 to 41 plus the special 45.
+    fathers = {
+        { 0, 'Benjamin' }, { 1, 'Daniel' }, { 2, 'Joshua' }, { 3, 'Noah' }, { 4, 'Andrew' },
+        { 5, 'Joan' }, { 6, 'Alex' }, { 7, 'Isaac' }, { 8, 'Evan' }, { 9, 'Ethan' },
+        { 10, 'Vincent' }, { 11, 'Angel' }, { 12, 'Diego' }, { 13, 'Adrian' }, { 14, 'Gabriel' },
+        { 15, 'Michael' }, { 16, 'Santiago' }, { 17, 'Kevin' }, { 18, 'Louis' }, { 19, 'Samuel' },
+        { 20, 'Anthony' }, { 42, 'John' }, { 43, 'Niko' }, { 44, 'Claude' },
+    },
+    mothers = {
+        { 21, 'Hannah' }, { 22, 'Audrey' }, { 23, 'Jasmine' }, { 24, 'Giselle' }, { 25, 'Amelia' },
+        { 26, 'Isabella' }, { 27, 'Zoe' }, { 28, 'Ava' }, { 29, 'Camilla' }, { 30, 'Violet' },
+        { 31, 'Sophia' }, { 32, 'Eveline' }, { 33, 'Nicole' }, { 34, 'Ashley' }, { 35, 'Grace' },
+        { 36, 'Brianna' }, { 37, 'Natalie' }, { 38, 'Olivia' }, { 39, 'Elizabeth' },
+        { 40, 'Charlotte' }, { 41, 'Emma' }, { 45, 'Misty' },
+    },
 
     -- the 20 face sliders, in the order the game numbers them (0 to 19)
     features = {

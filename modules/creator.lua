@@ -58,7 +58,7 @@ local function newState()
         name = { first = '', last = '' },
         outfit = 1,
         look = {
-            mother = C.mothers.first, father = C.fathers.first, shapeMix = 0.5, skinMix = 0.5,
+            mother = C.mothers[1][1], father = C.fathers[1][1], shapeMix = 0.5, skinMix = 0.5,
             features = features,
             overlays = {},        -- while editing: overlay id -> { style, opacity, color }
             hair = { style = 0, color = 0, highlight = 0 },
@@ -136,6 +136,16 @@ local function sliderRow(label, get, set, low, high, step, show)
         left = function() move(-1) end,
         right = function() move(1) end,
     }
+end
+
+-- where a parent's game number sits in its list, and the name the menu shows for it
+local function parentIndex(list, number)
+    for i, entry in ipairs(list) do
+        if entry[1] == number then
+            return i
+        end
+    end
+    return 1
 end
 
 local function percent(value)
@@ -268,12 +278,12 @@ function FrameOS.openCreator(editing)
 
     pages.parents = { title = 'Parents', build = function()
         return {
-            choiceRow('Mother', function() return state.look.mother end,
-                function(v) state.look.mother = v; refresh() end, C.mothers.first, C.mothers.last,
-                function(v) return tostring(v - C.mothers.first + 1) end),
-            choiceRow('Father', function() return state.look.father end,
-                function(v) state.look.father = v; refresh() end, C.fathers.first, C.fathers.last,
-                function(v) return tostring(v - C.fathers.first + 1) end),
+            choiceRow('Mother', function() return parentIndex(C.mothers, state.look.mother) end,
+                function(v) state.look.mother = C.mothers[v][1]; refresh() end, 1, #C.mothers,
+                function(v) return C.mothers[v][2] .. '  (' .. C.mothers[v][1] .. ')' end),
+            choiceRow('Father', function() return parentIndex(C.fathers, state.look.father) end,
+                function(v) state.look.father = C.fathers[v][1]; refresh() end, 1, #C.fathers,
+                function(v) return C.fathers[v][2] .. '  (' .. C.fathers[v][1] .. ')' end),
             sliderRow('Face takes after', function() return state.look.shapeMix end,
                 function(v) state.look.shapeMix = v; refresh() end, 0.0, 1.0, 0.05, function(v) return percent(v) .. ' father' end),
             sliderRow('Skin takes after', function() return state.look.skinMix end,
