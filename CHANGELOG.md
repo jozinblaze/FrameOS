@@ -2,6 +2,16 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.6.2 - Safety sweep
+- New players start unarmed: Config.loadout is empty. The old kit is now Config.testLoadout, used only by the /guns test command
+- Shops, the garage and ped changes can no longer freeze: models load through FrameOS.loadModel with a 5 second limit (a car that would not load used to hang the shop menu with you frozen)
+- A player file that fails to write is no longer marked saved; it stays queued and is retried, and the failure is printed
+- A player file that parses but is not a table is treated as broken (copied to .broken) instead of crashing the load
+- Request timers are cleared when a player leaves (server ids get reused); the hourly job cap is tracked per license so leaving and rejoining cannot reset it
+- The client asks the server for its data again if the first hello is lost (up to 5 tries) and says so if it never arrives
+- The log file is set aside at 400 KB instead of 2 MB, because the whole file is re-read on every write
+- tests/server_test.lua: runs the real server files against a pretend FiveM (saving, bank, ATM limit, job cap, trunks)
+
 ## 1.6.1 - Storage fixes from testing
 - Shift+Enter in storage now moves as many as fit instead of failing with 'bad request' on a big stack; the server limit per move is 1,000,000
 - Glovebox prompt only shows when the car is nearly stopped (no distracting prompt while driving)
