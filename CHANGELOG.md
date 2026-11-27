@@ -2,18 +2,22 @@
 
 Newest first. Every entry is one commit and one git tag.
 
-## v1.9.1: Every parent face, with names
-- The creator now offers every parent face the game has, with names: fathers 0 to 20 plus John, Niko and Claude (42 to 44), mothers 21 to 41 plus Misty (45)
-- Parent lists live in data/character.lua as { number, name }; the server only accepts numbers from those lists
+## 1.9.1 - Every parent face, with names
+- The creator now offers every parent face the game has, with names: fathers 0 to 20 plus John, Niko and Claude (42 to 44), mothers 21 to 41 plus Misty (45). The Mother and Father rows show the name and the game's number, for example Sophia (31) and Santiago (16)
+- The parent lists live in data/character.lua as { number, name }. The server only accepts numbers from those lists (a father number sent as a mother, or a number that does not exist, becomes the first in the list)
+- Characters saved with 1.9.0 stay valid
 - CHANGELOG.md repaired: it was missing the entries for 1.6.2 to 1.9.0
-- tests: parent checks and a creator test that walks the Mother row to the special mother and back
+- tests: parent checks on the server and a creator test that walks the Mother row to the special mother and back
 
-## v1.9.0: Freemode character and creator
-- Character creator opens on first join: name, gender, parents, 20 face sliders, skin overlays, hair, eyes, makeup, starting outfit
-- Character saved on the server (d.character); server/character.lua checks every number against data/character.lua
-- Saved character is put on you at every spawn; old local ped and outfit ignored once a character exists
-- /creator (admin test command) reopens it, /whoami shows your name
-- New data/character.lua; tests for the server checks and a creator test with scripted key presses
+## 1.9.0 - Freemode character and creator
+- Freemode character and creator. On your first join (no character yet) a camera frames your ped and a menu on the left lets you set name, gender, parents and how much you take after each, 20 face sliders, skin overlays, hair and highlights, eyebrows, facial hair, chest hair, eye color, makeup and a starting outfit. Left/Right change values (hold to go faster), A/D turn the ped, E switches between face and full body camera. Nothing is saved until Finish
+- The character is saved on the server under d.character (name, sex, look, outfit). server/character.lua checks every number against data/character.lua and keeps only a cleaned copy: a modified client cannot save anything the creator could not make. A player with a character cannot change it; an admin can while Config.testCommands is on (/creator)
+- Your saved character is put on you at every spawn (modules/character.lua), before position and weapons are restored. Numbers are checked against what the game really has, so a bad number becomes the biggest real one instead of a missing shirt
+- The old local ped and outfit are ignored once a character exists (outfit.lua main outfit and state.lua outfit restore skip). /ped and the other outfit test commands still work for testing
+- The HUD text and radar hide while the creator is open (FrameOS.uiHidden)
+- New data/character.lua: models, face lists, overlay list, hair and eye ranges, starter outfits. The starter outfit numbers are a first guess, adjust them with /clothinfo and /cloth
+- New commands: /creator (admin test command), /whoami. FrameOS.characterName(source) on the server for later modules
+- tests: server tests for the character checks, new creator_test.lua that plays the menu with scripted key presses
 
 ## 1.8.0 - Store, one corner renderer, module map
 - New server/store.lua: the one place saved data files are read and written (FrameOS.store.read / write / copy / setAside). Player saving, daily backups and .broken copies now go through it. File names and folders are unchanged, so nothing is migrated. A database later only has to replace this file
