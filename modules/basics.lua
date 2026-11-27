@@ -1,13 +1,13 @@
 -- basics: the old-school sandbox essentials.
--- when you spawn in you get full health, armor and the weapons you carry.
+-- when you spawn in you get full health and armor. weapons only come from Config.loadout, which is empty (nobody starts armed).
 -- trunk weapons are not given here, they come from a car's trunk (trunk.lua).
 -- changing ped later keeps your health, armor and weapons (see outfit.lua).
 
 local godMode = false
 
-local function giveLoadout()
+local function giveLoadout(list)
     local ped = PlayerPedId()
-    for _, gun in ipairs(Config.loadout) do
+    for _, gun in ipairs(list or Config.loadout) do
         -- heavy weapons stay in the trunk
         if not (gun.trunk and Config.trunkWeapons) then
             GiveWeaponToPed(ped, joaat(gun.name), gun.ammo, false, false)
@@ -37,9 +37,9 @@ FrameOS.testCommand('fix', 'repairs and cleans the car you are in', function()
     FrameOS.notify('Car fixed')
 end)
 
-FrameOS.testCommand('guns', 'gives the weapons you carry (not the trunk ones)', function()
-    giveLoadout()
-    FrameOS.notify('Loadout given')
+FrameOS.testCommand('guns', 'gives the test weapon kit (Config.testLoadout)', function()
+    giveLoadout(Config.testLoadout)
+    FrameOS.notify('Test weapons given')
 end)
 
 FrameOS.testCommand('wanted', 'sets your wanted level, example: /wanted 3', function(source, args)

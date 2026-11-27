@@ -188,9 +188,9 @@ local function browseVehicles(shop, id)
     local function showCar()
         removePreview()
         local model = joaat(cars[index].model)
-        RequestModel(model)
-        while not HasModelLoaded(model) do
-            Wait(0)
+        if not FrameOS.loadModel(model) then
+            FrameOS.notify(cars[index].name .. ' could not be shown')
+            return
         end
         -- false, false = only you can see it
         preview = CreateVehicle(model, spot.x, spot.y, spot.z, heading, false, false)

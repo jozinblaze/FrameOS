@@ -32,13 +32,14 @@ function FrameOS.log(kind, source, text)
 end
 
 -- writes the waiting lines to the file every 10 seconds.
--- a file over about 2 MB is set aside and a fresh one starts.
+-- a file over about 400 KB is set aside and a fresh one starts (the whole file is
+-- read again on every write, so a small file keeps this cheap).
 local function flushLog()
     if #logBuffer == 0 then
         return
     end
     local old = LoadResourceFile(resource, 'logs/frameos.log') or ''
-    if #old > 2000000 then
+    if #old > 400000 then
         SaveResourceFile(resource, 'logs/frameos-' .. os.date('%Y%m%d-%H%M%S') .. '.log', old, -1)
         old = ''
     end
@@ -113,6 +114,9 @@ local function loadRecord(source)
     local path = 'playerdata/' .. id:gsub('[^%w]', '_') .. '.json'
     local raw = LoadResourceFile(resource, path)
     local data = raw and json.decode(raw)
+    if raw and type(data) ~= 'table' then
+        data = nil
+    end
 
     if raw and not data then
         -- the file exists but is unreadable. keep it safe and do NOT overwrite it.
@@ -139,9 +143,24 @@ local function loadRecord(source)
     return records[source]
 end
 
+-- writes a player's file. if the write fails the record stays dirty, so the next
+-- 30 second save tries again, and the failure is logged instead of being silent.
 local function saveRecord(record)
-    SaveResourceFile(resource, record.path, json.encode(record.data, { indent = true }), -1)
+    local ok = SaveResourceFile(resource, record.path, json.encode(record.data, { indent = true }), -1)
+    if ok == false then
+        print('[FrameOS] ERROR: could not save ' .. record.path .. ', will try again')
+        record.failed = (record.failed or 0) + 1
+        record.dirty = true
+        return false
+    end
+    record.failed = nil
     record.dirty = false
+    return true
+end
+
+-- the player's license id, or nil if they have not loaded in yet
+function FrameOS.idOf(source)
+    return records[source] and records[source].id
 end
 
 -- the player's data table, or nil if they have not loaded in yet
@@ -177,6 +196,11 @@ AddEventHandler('playerDropped', function()
         records[source] = nil
     end
     floods[source] = nil
+    for key in pairs(lastAsk) do
+        if key:match('^' .. source .. ':') then
+            lastAsk[key] = nil
+        end
+    end
 end)
 
 AddEventHandler('onResourceStop', function(name)

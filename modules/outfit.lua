@@ -19,9 +19,8 @@ local function setModel(model)
         return false
     end
 
-    RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(0)
+    if not FrameOS.loadModel(model) then
+        return false
     end
 
     -- changing ped wipes health, armor and weapons, so remember them first

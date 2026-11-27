@@ -13,7 +13,7 @@ end
 local stored = FrameOS.load('trunk', nil)
 if not stored then
     stored = {}
-    for _, gun in ipairs(Config.loadout) do
+    for _, gun in ipairs(Config.testLoadout) do
         if gun.trunk then
             stored[gun.name] = gun.ammo
         end

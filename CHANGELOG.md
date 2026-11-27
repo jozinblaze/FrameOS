@@ -87,13 +87,13 @@ Newest first. Every entry is one commit and one git tag.
 - Rob's Liquor and Del Vecchio sell a liquor list, Don's a country-store list, 24/7 and LTD keep the full list
 - Exotic dealership marked blocked by the MLO; notes added about the spawn and preview spots
 
- ## 0.8.0 - Money and items review pass
- - Cash is whole dollars only; zero and negative amounts are ignored
- - /inv skips items that no longer exist; old saved names are migrated
- - Items renamed to GTA ones (Burger Shot, Cluckin Bell, eCola, Sprunk, Pisswasser); Fitbit removed
- - Every item has a weight field for the coming storage rework
- - Buying a weapon you already carry is blocked
- - Hospital bill lowered to $250
+## 0.8.0 - Money and items review pass
+- Cash is whole dollars only; zero and negative amounts are ignored
+- /inv skips items that no longer exist; old saved names are migrated
+- Items renamed to GTA ones (Burger Shot, Cluckin Bell, eCola, Sprunk, Pisswasser); Fitbit removed
+- Every item has a weight field for the coming storage rework
+- Buying a weapon you already carry is blocked
+- Hospital bill lowered to $250
 
 ## 0.7.0 - Test switch, vehicle-aware blip, trunk parked
 - Config.testCommands now covers every cheat, teleport, debug and build command (FrameOS.testCommand)

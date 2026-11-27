@@ -16,10 +16,10 @@ local function spawnCar(modelName, at, look)
         return
     end
 
-    -- ask for the model, then wait until it's loaded
-    RequestModel(model)
-    while not HasModelLoaded(model) do
-        Wait(0)
+    -- ask for the model, then wait until it's loaded (gives up after 5 seconds)
+    if not FrameOS.loadModel(model) then
+        FrameOS.notify('The car ' .. modelName .. ' would not load')
+        return
     end
 
     local ped = PlayerPedId()

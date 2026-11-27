@@ -55,10 +55,16 @@ Config.readoutFoot = { x = 0.015, y = 0.90 }
 Config.readoutCar = { x = 0.19, y = 0.90 }
 Config.useMph = true            -- false = km/h
 
--- your weapons (weapon name and ammo).
--- trunk = true marks a heavy weapon: it stays in a car's trunk and you can
--- only take it out while standing at a trunk (see modules/trunk.lua).
-Config.loadout = {
+-- what a brand new player spawns with. EMPTY on purpose: nobody starts armed.
+-- weapons come from shops. (a saved state, see state.lua, brings back what you carried.)
+-- put lines like these in if you ever want a starter kit:
+--     { name = 'WEAPON_BAT', ammo = 1 },
+--     { name = 'WEAPON_PISTOL', ammo = 250 },
+Config.loadout = {}
+
+-- the kit the /guns test command gives (test commands only, never given on spawn).
+-- trunk = true marks a heavy weapon (used by modules/trunk.lua when Config.trunkWeapons is on).
+Config.testLoadout = {
     { name = 'WEAPON_BAT',          ammo = 1 },
     { name = 'WEAPON_PISTOL',       ammo = 250 },
     { name = 'WEAPON_PUMPSHOTGUN',  ammo = 100, trunk = true },

@@ -103,10 +103,18 @@ RegisterNetEvent('frameos:joined', function(imported)
     end)
 end)
 
--- say hello to the server when we start, so it loads our data
+-- say hello to the server when we start, so it loads our data.
+-- if no data has come back after 5 seconds the hello is sent again (up to 5 times).
 CreateThread(function()
     Wait(1000)
-    TriggerServerEvent('frameos:join')
+    for _ = 1, 5 do
+        TriggerServerEvent('frameos:join')
+        Wait(5000)
+        if dataLoaded then
+            return
+        end
+    end
+    FrameOS.notify('Could not reach the server data. Try /restart frameos or rejoin.')
 end)
 
 -- shows your license identifier (F8 console too), to paste into Config.admins in config.lua

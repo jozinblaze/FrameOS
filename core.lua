@@ -72,6 +72,22 @@ function FrameOS.groundZ(x, y, z)
     return z
 end
 
+-- asks for a model and waits until it is loaded, but never forever.
+-- returns true if it loaded, false if the model doesn't exist or took too long.
+-- (a model that never loads used to freeze a shop or garage menu for good)
+function FrameOS.loadModel(model, timeout)
+    if not IsModelInCdimage(model) then
+        return false
+    end
+    RequestModel(model)
+    local waited = 0
+    while not HasModelLoaded(model) and waited < (timeout or 5000) do
+        Wait(10)
+        waited = waited + 10
+    end
+    return HasModelLoaded(model)
+end
+
 -- map icons (blips). Config.showBlips = false turns all of them off.
 -- sprite is the icon number and color is the icon color, from the game's blip lists.
 local function nameBlip(blip, label)
@@ -148,9 +164,9 @@ function FrameOS.placePed(x, y, z, heading)
     FreezeEntityPosition(ped, false)
 end
 
--- the heavy weapons (trunk = true in the config), for quick lookup
+-- the heavy weapons (trunk = true in Config.testLoadout), for quick lookup
 FrameOS.trunkSet = {}
-for _, gun in ipairs(Config.loadout) do
+for _, gun in ipairs(Config.testLoadout) do
     if gun.trunk and Config.trunkWeapons then
         FrameOS.trunkSet[gun.name] = true
     end

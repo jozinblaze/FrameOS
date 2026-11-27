@@ -350,7 +350,8 @@ end, { every = 10000 })
 
 -- ---------------------------------------------------------------- jobs
 
-local hourly = {}   -- source -> { since, total } what jobs paid this player in the last hour
+local hourly = {}   -- license id -> { since, total } what jobs paid this player in the last hour
+                    -- (by license, so leaving and rejoining does not reset the cap)
 
 local function rankBonus(job)
     local best = 1.0
@@ -387,10 +388,11 @@ FrameOS.onAsk('jobPay', function(source, id, amount, points)
     end
 
     local now = GetGameTimer()
-    local bucket = hourly[source]
+    local who = FrameOS.idOf(source)
+    local bucket = hourly[who]
     if not bucket or now - bucket.since > 3600000 then
         bucket = { since = now, total = 0 }
-        hourly[source] = bucket
+        hourly[who] = bucket
     end
     if bucket.total + amount > (Config.jobHourlyCap or 30000) then
         FrameOS.log('refused', source, 'hourly job cap reached')
