@@ -14,9 +14,12 @@ No QBCore, Qbox or ESX. Everything is one resource with small modules.
 - `server/core.lua` - saved player data (one readable JSON file per player in `playerdata/`),
   the ask system (`FrameOS.onAsk` on the server, `FrameOS.ask` on the client), rate limits, the log
   (`logs/frameos.log`) and the admin check
+- `server/store.lua` - the one place data files are read and written (a database could replace just this)
 - `server/needs.lua` - hunger and thirst (the server lowers them, items raise them)
 - `server.lua` - saves exported presets
 - needs `set onesync on` in server.cfg. make yourself admin with `/myid` and `Config.admins`
+
+- `MODULES.md` - what every module owns, offers and needs; read it before adding one
 
 ## Rules of the house
 - `Config.testCommands = false` removes every cheat, teleport and build tool

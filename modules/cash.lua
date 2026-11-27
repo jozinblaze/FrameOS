@@ -21,20 +21,9 @@ function FrameOS.getCash()
     return FrameOS.data.cash
 end
 
--- draws the counter every frame
-CreateThread(function()
-    while true do
-        Wait(0)
-        SetTextFont(4)
-        SetTextScale(0.6, 0.6)
-        SetTextColour(120, 220, 120, 255)
-        SetTextOutline()
-        SetTextRightJustify(true)
-        SetTextWrap(0.0, 0.985)
-        BeginTextCommandDisplayText('STRING')
-        AddTextComponentSubstringPlayerName(formatMoney(FrameOS.data.cash))
-        EndTextCommandDisplayText(0.0, 0.03)
-    end
+-- the counter in the top right (FrameOS.corner draws it, see core.lua)
+FrameOS.corner(function()
+    return formatMoney(FrameOS.data.cash), { 120, 220, 120 }, 0.6
 end)
 
 -- these two are for testing, and the server only allows admins to use them.

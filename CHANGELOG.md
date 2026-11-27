@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.8.0 - Store, one corner renderer, module map
+- New server/store.lua: the one place saved data files are read and written (FrameOS.store.read / write / copy / setAside). Player saving, daily backups and .broken copies now go through it. File names and folders are unchanged, so nothing is migrated. A database later only has to replace this file
+- The top right text (money, job line, hunger and thirst line) is now one renderer, FrameOS.corner in core.lua: three per-frame threads became one, and the lines stack without overlapping
+- New MODULES.md: what every server and client file owns, offers and needs, rules for adding a module, and the known tangles
+- Loop check: every other per-frame loop is a menu, a short loading wait, or sleeps when nothing is near. Nothing else needed changing
+- tests: store tests added to server_test.lua, new corner_test.lua
+
 ## 1.7.0 - Hunger and thirst
 - Hunger and thirst, kept on the server (d.needs, 0 to 100). The server lowers them once a minute (Config.needs); food and drink items raise them (food = and drink = in data/items.lua)
 - Nothing is drawn while you are fine. A small orange line (Hungry, Thirsty, Starving, Dehydrated) shows under the job text when one is low, and you get one notification as you cross the line. /needs shows the numbers

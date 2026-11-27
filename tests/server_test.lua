@@ -85,7 +85,7 @@ for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'd
 Config.admins = { 'license:bbb' }
 Config.testCommands = true
 
-run('server/core.lua'); run('server/needs.lua'); run('server/economy.lua'); run('server/storage.lua')
+run('server/core.lua'); run('server/store.lua'); run('server/needs.lua'); run('server/economy.lua'); run('server/storage.lua')
 local ask = function(src, name, ...)
     -- go through the real frameos:ask event and catch the answer
     local got
@@ -228,6 +228,22 @@ fire('playerDropped', 2)
 files['playerdata/license_bbb.json'] = json.encode({ cash = 10, needs = { hunger = 'x' } })
 fire('frameos:join', 2)
 check(FrameOS.getPlayer(2).needs.hunger == 100 and FrameOS.getPlayer(2).needs.thirst == 100, 'a damaged needs table is repaired on load')
+
+-- the store
+check(FrameOS.store.path('playerdata', 'license:ab/c.d') == 'playerdata/license_ab_c_d.json', 'store makes ids file-safe')
+local data, raw = FrameOS.store.read('playerdata', 'license:nobody')
+check(data == nil and raw == nil, 'store: a missing file reads as nothing')
+check(FrameOS.store.write('playerdata', 'license:zzz', { a = 1 }), 'store: write works')
+data, raw = FrameOS.store.read('playerdata', 'license:zzz')
+check(data and data.a == 1 and raw, 'store: what was written reads back')
+files['playerdata/license_zzz.json'] = 'garbage'
+data, raw = FrameOS.store.read('playerdata', 'license:zzz')
+check(data == nil and raw == 'garbage', 'store: an unreadable file gives raw text and no data')
+FrameOS.store.copy('playerdata', 'license:zzz', '20260101', 'x')
+check(files['playerdata/backups/license_zzz-20260101.json'] == 'x', 'store: copies go to backups/')
+saveWorks = false
+check(FrameOS.store.write('playerdata', 'license:zzz', { a = 2 }) == false, 'store: a failed write says so')
+saveWorks = true
 
 -- buying
 d.cash = 5

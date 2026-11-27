@@ -198,23 +198,9 @@ CreateThread(function()
 end)
 
 -- a small line under the cash counter while you are on duty
-CreateThread(function()
-    while true do
-        if current then
-            local rank = FrameOS.jobRank(current)
-            SetTextFont(4)
-            SetTextScale(0.4, 0.4)
-            SetTextColour(255, 220, 80, 230)
-            SetTextOutline()
-            SetTextRightJustify(true)
-            SetTextWrap(0.0, 0.985)
-            BeginTextCommandDisplayText('STRING')
-            AddTextComponentSubstringPlayerName(Jobs[current].label .. ' - ' .. rank.name)
-            EndTextCommandDisplayText(0.0, 0.08)
-            Wait(0)
-        else
-            Wait(500)
-        end
+FrameOS.corner(function()
+    if current then
+        return Jobs[current].label .. ' - ' .. FrameOS.jobRank(current).name, { 255, 220, 80 }, 0.4
     end
 end)
 

@@ -3,7 +3,8 @@
 -- a player's screen can ask for things, and the server checks and decides.
 --
 -- what is in here:
---   saved player data   one readable file per player in the playerdata/ folder
+--   saved player data   one readable file per player in the playerdata/ folder (through
+--                       FrameOS.store in server/store.lua, so nothing else touches files)
 --   asking              FrameOS.onAsk(name, fn): the client calls FrameOS.ask(name, ...)
 --   rate limits         a player can't flood the server with requests
 --   the log             every important thing is written to logs/frameos.log
@@ -112,24 +113,19 @@ local function loadRecord(source)
     if not id then
         return nil
     end
-    local path = 'playerdata/' .. id:gsub('[^%w]', '_') .. '.json'
-    local raw = LoadResourceFile(resource, path)
-    local data = raw and json.decode(raw)
-    if raw and type(data) ~= 'table' then
-        data = nil
-    end
+    local path = FrameOS.store.path('playerdata', id)
+    local data, raw = FrameOS.store.read('playerdata', id)
 
     if raw and not data then
-        -- the file exists but is unreadable. keep it safe and do NOT overwrite it.
-        SaveResourceFile(resource, path .. '.broken-' .. os.time(), raw, -1)
+        -- the file exists but is unreadable (or not a table). keep it safe and do NOT overwrite it.
+        FrameOS.store.setAside('playerdata', id, raw)
         FrameOS.log('error', source, 'player file could not be read, saved a copy as .broken and started fresh')
-        data = nil
     end
 
     -- a copy of the file as it was when the player loaded in, one per day, so a bad
     -- update or a mistake can always be rolled back (playerdata/backups/)
     if raw and data then
-        SaveResourceFile(resource, 'playerdata/backups/' .. id:gsub('[^%w]', '_') .. '-' .. os.date('%Y%m%d') .. '.json', raw, -1)
+        FrameOS.store.copy('playerdata', id, os.date('%Y%m%d'), raw)
     end
 
     local fresh = (data == nil)
@@ -154,8 +150,7 @@ end
 -- writes a player's file. if the write fails the record stays dirty, so the next
 -- 30 second save tries again, and the failure is logged instead of being silent.
 local function saveRecord(record)
-    local ok = SaveResourceFile(resource, record.path, json.encode(record.data, { indent = true }), -1)
-    if ok == false then
+    if not FrameOS.store.write('playerdata', record.id, record.data) then
         print('[FrameOS] ERROR: could not save ' .. record.path .. ', will try again')
         record.failed = (record.failed or 0) + 1
         record.dirty = true

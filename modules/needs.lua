@@ -87,25 +87,11 @@ CreateThread(function()
     end
 end)
 
--- the small line under the job text, only while something is low
-CreateThread(function()
-    while true do
-        local line = statusLine()
-        if line then
-            -- right aligned under the cash counter and the job line, same style as them
-            SetTextFont(4)
-            SetTextScale(0.4, 0.4)
-            SetTextColour(255, 150, 60, 230)
-            SetTextOutline()
-            SetTextRightJustify(true)
-            SetTextWrap(0.0, 0.985)
-            BeginTextCommandDisplayText('STRING')
-            AddTextComponentSubstringPlayerName(line)
-            EndTextCommandDisplayText(0.0, 0.11)
-            Wait(0)
-        else
-            Wait(500)
-        end
+-- the small line under the job text, only while something is low (FrameOS.corner draws it)
+FrameOS.corner(function()
+    local line = statusLine()
+    if line then
+        return line, { 255, 150, 60 }, 0.4
     end
 end)
 

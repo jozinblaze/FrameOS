@@ -5,3 +5,5 @@ It is not loaded by the game (it is not in fxmanifest.lua), it is only for check
 
 tests/client_test.lua loads modules/needs.lua with a pretend game and checks the health regen
 and starving rules. Run it the same way:   lua tests/client_test.lua
+
+tests/corner_test.lua checks the stacking of the top right text lines (FrameOS.corner in core.lua).

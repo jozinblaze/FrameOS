@@ -24,6 +24,7 @@ function SetEntityHealth(_, h) health = h end
 FrameOS = { data = { needs = { hunger = 100, thirst = 100 }, bag = {} } }
 function FrameOS.notify(t) notes[#notes + 1] = t end
 function FrameOS.drawText() end
+function FrameOS.corner() end
 for _, n in ipairs({ 'SetTextFont','SetTextScale','SetTextColour','SetTextOutline','SetTextRightJustify','SetTextWrap','BeginTextCommandDisplayText','AddTextComponentSubstringPlayerName','EndTextCommandDisplayText' }) do _G[n] = function() end end
 function FrameOS.command(n, h, f) commands[n] = f end
 FrameOS.testCommand = FrameOS.command

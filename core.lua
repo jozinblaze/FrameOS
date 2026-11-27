@@ -60,6 +60,41 @@ function FrameOS.drawText(text, x, y, scale, centered, color)
     EndTextCommandDisplayText(x, y)
 end
 
+-- the top right corner: one thread draws every line modules registered, stacked under each other.
+-- a module calls FrameOS.corner(fn) once. fn() runs every frame and returns what to show:
+--   text, color, scale     (color like { 255, 220, 80 }, scale defaults to 0.4)
+-- or nothing when it has nothing to show right now. the cash counter, the job line and the
+-- hunger/thirst line all use this, so they stack without overlapping and cost one thread.
+local cornerLines = {}
+
+function FrameOS.corner(fn)
+    table.insert(cornerLines, fn)
+end
+
+CreateThread(function()
+    while true do
+        Wait(0)
+        local y = 0.03
+        for _, fn in ipairs(cornerLines) do
+            local text, color, scale = fn()
+            if text then
+                scale = scale or 0.4
+                color = color or { 255, 255, 255 }
+                SetTextFont(4)
+                SetTextScale(scale, scale)
+                SetTextColour(color[1], color[2], color[3], 230)
+                SetTextOutline()
+                SetTextRightJustify(true)
+                SetTextWrap(0.0, 0.985)
+                BeginTextCommandDisplayText('STRING')
+                AddTextComponentSubstringPlayerName(text)
+                EndTextCommandDisplayText(0.0, y)
+                y = y + ((scale >= 0.5) and 0.05 or 0.03)
+            end
+        end
+    end
+end)
+
 -- finds the ground under a position (the game needs the area loaded first).
 -- it only looks from just above the height you give it. looking from higher
 -- up finds rooftops, which is what used to drop you on top of buildings.
