@@ -158,6 +158,24 @@ Config.importCashMax = 2000000   -- the most cash that copy can bring
 Config.jobHourlyCap = 30000
 
 Config.hospitalBill = 250       -- most you pay (you never go below $0)
+
+-- hunger and thirst (100 = full, 0 = empty). the server lowers them once a minute.
+-- at these speeds you go from full to empty in about 2 hours (hunger) and 1.5 hours (thirst).
+Config.needs = {
+    hungerPerMinute = 0.8,
+    thirstPerMinute = 1.1,
+    warnAt = 25,         -- "you are getting hungry" and the small status line start here
+    afterDeath = 50,     -- waking up at the hospital: lifted to at least this
+    -- health regen speed (1.0 is the game's normal speed, 0 is none)
+    regenFed = 1.0,      -- when both are above regenSlowAt
+    regenSlowAt = 50,    -- at or below this, health comes back slower
+    regenSlow = 0.5,
+    regenStopAt = 25,    -- at or below this, health stops coming back by itself
+    -- when one is at 0 you lose health, but never below the floor (so it can't kill you).
+    -- health runs 100 (dead) to 200.
+    damage = 2, damageEvery = 6000, floor = 110,
+    useTime = 2500,      -- how long the eating and drinking animation runs (ms)
+}
 Config.respawnDelay = 4000      -- how long the death screen shows (milliseconds)
 Config.deathText = 'WASTED'
 

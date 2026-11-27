@@ -2,6 +2,15 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.7.0 - Hunger and thirst
+- Hunger and thirst, kept on the server (d.needs, 0 to 100). The server lowers them once a minute (Config.needs); food and drink items raise them (food = and drink = in data/items.lua)
+- Nothing is drawn while you are fine. A small orange line (Hungry, Thirsty, Starving, Dehydrated) shows under the job text when one is low, and you get one notification as you cross the line. /needs shows the numbers
+- Health regen follows your needs: normal speed when fed, slower when getting low, none when very low. At 0 you slowly lose health but never below a floor, so it cannot kill you
+- Eating and drinking play an upper-body animation (you can still walk). Food or drink is refused, and not used up, if you are not hungry or thirsty
+- New commands: /eat and /drink (use the item that fills the most), /needs, /setneeds (admin test command). /use also works for food and drink
+- Waking up at the hospital lifts hunger and thirst to at least 50. Modules can now hook into that with FrameOS.onRespawn on the server
+- tests/server_test.lua covers needs; tests/client_test.lua checks the regen and starving rules
+
 ## 1.6.2 - Safety sweep
 - New players start unarmed: Config.loadout is empty. The old kit is now Config.testLoadout, used only by the /guns test command
 - Shops, the garage and ped changes can no longer freeze: models load through FrameOS.loadModel with a 5 second limit (a car that would not load used to hang the shop menu with you frozen)

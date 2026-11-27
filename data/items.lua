@@ -7,6 +7,8 @@
 --   weight   how heavy it is (kg). the bag and every container have a weight limit (data/storage.lua)
 --   price    the normal price
 --   heal     health it gives when you use it (health runs 100 to 200 on most peds)
+--   food     how much hunger it fills (0 to 100, see Config.needs)
+--   drink    how much thirst it quenches (0 to 100)
 --   armor    armor it gives when you use it (0 to 100)
 --   fix      true = repairs the car you're sitting in when you use it
 --   weapon   buying it gives you this weapon right away, ammo is how much comes with it
@@ -16,17 +18,17 @@
 
 Items = {
     -- food and drink
-    burger        = { label = 'Burger Shot Burger', price = 4,  weight = 0.4, heal = 30 },
-    cluckin_meal  = { label = "Cluckin' Bell Meal", price = 5,  weight = 0.5, heal = 35 },
-    sandwich      = { label = 'Sandwich',      price = 2,   weight = 0.3, heal = 25 },
-    water         = { label = 'Water Bottle',  price = 2,   weight = 0.5, heal = 10 },
-    ecola         = { label = 'eCola',         price = 2,   weight = 0.4, heal = 10 },
-    sprunk        = { label = 'Sprunk',        price = 2,   weight = 0.4, heal = 10 },
-    candy_bar     = { label = 'Candy Bar',     price = 2,   weight = 0.1, heal = 5 },
-    coffee        = { label = 'Coffee',        price = 5,   weight = 0.3, heal = 10 },
-    pisswasser    = { label = 'Pisswasser',    price = 7,   weight = 0.5 },
-    whiskey       = { label = 'Whiskey',       price = 10,  weight = 0.8 },
-    vodka         = { label = 'Vodka',         price = 12,  weight = 0.8 },
+    burger        = { label = 'Burger Shot Burger', price = 4,  weight = 0.4, heal = 30, food = 40 },
+    cluckin_meal  = { label = "Cluckin' Bell Meal", price = 5,  weight = 0.5, heal = 35, food = 45 },
+    sandwich      = { label = 'Sandwich',      price = 2,   weight = 0.3, heal = 25, food = 30 },
+    water         = { label = 'Water Bottle',  price = 2,   weight = 0.5, heal = 10, drink = 35 },
+    ecola         = { label = 'eCola',         price = 2,   weight = 0.4, heal = 10, drink = 25 },
+    sprunk        = { label = 'Sprunk',        price = 2,   weight = 0.4, heal = 10, drink = 25 },
+    candy_bar     = { label = 'Candy Bar',     price = 2,   weight = 0.1, heal = 5, food = 8 },
+    coffee        = { label = 'Coffee',        price = 5,   weight = 0.3, heal = 10, drink = 15 },
+    pisswasser    = { label = 'Pisswasser',    price = 7,   weight = 0.5, drink = 10 },
+    whiskey       = { label = 'Whiskey',       price = 10,  weight = 0.8, drink = 5 },
+    vodka         = { label = 'Vodka',         price = 12,  weight = 0.8, drink = 5 },
 
     -- medical and repair
     bandage           = { label = 'Bandage',             price = 100, weight = 0.1, heal = 60 },

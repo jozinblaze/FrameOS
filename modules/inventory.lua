@@ -58,7 +58,7 @@ function FrameOS.applyItem(name)
     FrameOS.notify('Got ' .. item.label)
 end
 
-local function useItem(name)
+function FrameOS.useItem(name)
     local item = Items[name]
     if not item then
         FrameOS.notify('No item called ' .. name)
@@ -68,7 +68,7 @@ local function useItem(name)
         FrameOS.notify('You have no ' .. item.label)
         return
     end
-    if not (item.heal or item.armor or item.fix) then
+    if not (item.heal or item.armor or item.fix or item.food or item.drink) then
         FrameOS.notify(item.label .. ' has no use yet')
         return
     end
@@ -76,7 +76,7 @@ local function useItem(name)
     local ped = PlayerPedId()
 
     -- check it makes sense BEFORE asking the server to use one up
-    if item.heal and not item.armor and not item.fix then
+    if item.heal and not item.armor and not item.fix and not item.food and not item.drink then
         if GetEntityHealth(ped) >= GetEntityMaxHealth(ped) then
             FrameOS.notify('Your health is already full')
             return
@@ -105,6 +105,9 @@ local function useItem(name)
         SetVehicleDeformationFixed(vehicle)
     end
     FrameOS.notify('Used ' .. item.label)
+    if FrameOS.playUseAnimation then
+        FrameOS.playUseAnimation(answer)
+    end
 end
 
 FrameOS.command('inv', 'shows what is in your bag', function()
@@ -134,7 +137,7 @@ FrameOS.command('use', 'uses an item from your bag, example: /use bandage', func
         FrameOS.notify('Usage: /use <item>  (see /inv)')
         return
     end
-    useItem(string.lower(args[1]))
+    FrameOS.useItem(string.lower(args[1]))
 end)
 
 -- these two are for testing. Config.testCommands = false turns them off.

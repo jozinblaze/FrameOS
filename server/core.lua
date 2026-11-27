@@ -98,6 +98,7 @@ local function defaults()
         atmDay = '',       -- the day (YYYYMMDD) atmOut counts for
         atmOut = 0,        -- cash taken from ATMs today
         bag = {},          -- item name -> how many
+        needs = { hunger = 100, thirst = 100 },   -- 0 to 100, see server/needs.lua
         owned = {},        -- the cars you own
         storage = {},      -- container id -> items (car trunks and gloveboxes by plate, safehouse stashes)
         nextCarId = 1,
@@ -139,6 +140,13 @@ local function loadRecord(source)
         end
     end
 
+    -- keys inside tables that older files only half have
+    if type(data.needs) ~= 'table' then
+        data.needs = { hunger = 100, thirst = 100 }
+    end
+    data.needs.hunger = tonumber(data.needs.hunger) or 100
+    data.needs.thirst = tonumber(data.needs.thirst) or 100
+
     records[source] = { id = id, path = path, data = data, dirty = fresh }
     return records[source]
 end
@@ -156,6 +164,20 @@ local function saveRecord(record)
     record.failed = nil
     record.dirty = false
     return true
+end
+
+-- calls fn(source, data) for every player who is loaded in
+function FrameOS.eachPlayer(fn)
+    for source, record in pairs(records) do
+        fn(source, record.data)
+    end
+end
+
+-- modules register things to do when a player wakes up at the hospital:
+-- FrameOS.onRespawn(function(source, data) ... end). economy.lua runs them.
+FrameOS.respawnHooks = {}
+function FrameOS.onRespawn(fn)
+    table.insert(FrameOS.respawnHooks, fn)
 end
 
 -- the player's license id, or nil if they have not loaded in yet

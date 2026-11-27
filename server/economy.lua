@@ -8,7 +8,7 @@
 --
 -- in this file:  balances, import of old saves, buying items and cars, selling a car,
 --                using an item, cash pickups, the hospital bill, job pay (checked against
---                the job's data), the bank and ATMs (storage is in storage.lua), and the admin test commands.
+--                the job's data), food and drink use (needs are in needs.lua), the bank and ATMs (storage is in storage.lua), and the admin test commands.
 
 local function data(source)
     return FrameOS.getPlayer(source)
@@ -44,6 +44,7 @@ function FrameOS.push(source)
     if d then
         TriggerClientEvent('frameos:data', source, {
             cash = d.cash, bank = d.bank, atmLeft = atmLeft(d), bag = d.bag, owned = d.owned, jobrep = d.jobrep,
+            needs = d.needs,
         })
     end
 end
@@ -287,16 +288,23 @@ FrameOS.onAsk('useItem', function(source, name)
     if not item or (d.bag[name] or 0) < 1 then
         return no('You do not have that')
     end
-    if not (item.heal or item.armor or item.fix) then
+    if not (item.heal or item.armor or item.fix or item.food or item.drink) then
         return no('That has no use yet')
+    end
+    -- food and drink are refused when they would be wasted (not hungry, not thirsty)
+    local wasted = FrameOS.needsFull(d, item)
+    if wasted then
+        return no(wasted)
     end
     d.bag[name] = d.bag[name] - 1
     if d.bag[name] <= 0 then
         d.bag[name] = nil
     end
+    FrameOS.needsEat(d, item)
     FrameOS.markDirty(source)
     FrameOS.push(source)
-    return { ok = true, label = item.label, heal = item.heal, armor = item.armor, fix = item.fix }
+    return { ok = true, label = item.label, heal = item.heal, armor = item.armor, fix = item.fix,
+        food = item.food, drink = item.drink }
 end, { every = 300 })
 
 -- ---------------------------------------------------------------- pickups and the hospital
@@ -345,6 +353,11 @@ FrameOS.onAsk('hospitalBill', function(source)
     if bill > 0 then
         FrameOS.takeCash(source, bill, 'hospital bill')
     end
+    for _, hook in ipairs(FrameOS.respawnHooks) do
+        hook(source, d)
+    end
+    FrameOS.markDirty(source)
+    FrameOS.push(source)
     return { ok = true, bill = bill }
 end, { every = 10000 })
 
@@ -506,6 +519,12 @@ FrameOS.onAsk('admin', function(source, action, a, b)
         local car = newCar(d, a, (known and known.name) or a, (known and known.price) or tonumber(b) or 0)
         FrameOS.markDirty(source)
         FrameOS.log('car', source, 'admin givecar ' .. a .. ' plate ' .. car.plate)
+        FrameOS.push(source)
+    elseif action == 'setneeds' and type(a) == 'number' and type(tonumber(b)) == 'number' then
+        d.needs.hunger = math.max(0, math.min(100, a))
+        d.needs.thirst = math.max(0, math.min(100, tonumber(b)))
+        FrameOS.markDirty(source)
+        FrameOS.log('item', source, 'admin setneeds ' .. d.needs.hunger .. ' ' .. d.needs.thirst)
         FrameOS.push(source)
     elseif action == 'giveitem' and Items[a] then
         d.bag[a] = (d.bag[a] or 0) + (math.floor(tonumber(b) or 1))

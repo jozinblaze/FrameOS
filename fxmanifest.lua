@@ -18,6 +18,7 @@ shared_scripts {
 -- the server side. server/core.lua must come first.
 server_scripts {
     'server/core.lua',
+    'server/needs.lua',
     'server/economy.lua',
     'server/storage.lua',
     'server.lua',
@@ -39,6 +40,7 @@ client_scripts {
     'modules/bank.lua',
     'modules/inventory.lua',   -- inventory must load before the shop
     'modules/storage.lua',     -- trunks, gloveboxes and stashes (uses the bag)
+    'modules/needs.lua',       -- hunger and thirst (uses the bag, so it comes after it)
     'modules/jobs.lua',        -- the job engine, job files come right after it
     'modules/jobs/courier.lua',
     'modules/jobs/pimp.lua',

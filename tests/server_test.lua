@@ -82,10 +82,10 @@ local function run(f) local fn, e = loadfile(f); if not fn then error(e) end; re
 Config = {}
 run('config.lua')
 for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'data/jobs.lua', 'data/banks.lua', 'data/storage.lua' }) do run(f) end
-Config.admins = {}
+Config.admins = { 'license:bbb' }
 Config.testCommands = true
 
-run('server/core.lua'); run('server/economy.lua'); run('server/storage.lua')
+run('server/core.lua'); run('server/needs.lua'); run('server/economy.lua'); run('server/storage.lua')
 local ask = function(src, name, ...)
     -- go through the real frameos:ask event and catch the answer
     local got
@@ -184,6 +184,50 @@ check(r.result.ok == false, 'cannot sell a car with things in the trunk')
 ask(2, 'storageMove', 'trunk', 'FRTEST1', 'out', 'burger', 2)
 r = ask(2, 'sellVehicle', 1)
 check(r.result.ok == true, 'an emptied car can be sold')
+
+-- hunger and thirst
+d = FrameOS.getPlayer(2)
+check(d.needs.hunger == 100 and d.needs.thirst == 100, 'a new player starts fed and watered')
+FrameOS.needsTick()
+check(math.abs(d.needs.hunger - (100 - Config.needs.hungerPerMinute)) < 1e-9, 'one minute lowers hunger')
+check(math.abs(d.needs.thirst - (100 - Config.needs.thirstPerMinute)) < 1e-9, 'one minute lowers thirst (faster than hunger)')
+d.needs.hunger = 10; d.needs.thirst = 10
+d.bag = { burger = 1, water = 1, bandage = 1 }
+r = ask(2, 'useItem', 'burger')
+check(r.result.ok and d.needs.hunger == 10 + Items.burger.food and d.bag.burger == nil, 'a burger raises hunger and is used up')
+check(r.result.food == Items.burger.food, 'the answer says what it fed (so the screen can animate)')
+r = ask(2, 'useItem', 'water')
+check(r.result.ok and d.needs.thirst == 10 + Items.water.drink, 'water raises thirst')
+d.needs.hunger = 100; d.needs.thirst = 100
+d.bag = { burger = 1, water = 1 }
+r = ask(2, 'useItem', 'burger')
+check(r.result.ok == false and d.bag.burger == 1, 'food is refused (and kept) when you are not hungry')
+r = ask(2, 'useItem', 'water')
+check(r.result.ok == false and d.bag.water == 1, 'a drink is refused (and kept) when you are not thirsty')
+d.needs.hunger = 99.0; d.bag = { burger = 1 }
+r = ask(2, 'useItem', 'burger')
+check(r.result.ok == false, 'almost full also counts as not hungry')
+d.needs.hunger = 90; d.needs.thirst = 90
+r = ask(2, 'useItem', 'burger')
+check(r.result.ok and d.needs.hunger == 100, 'needs never go above 100')
+for i = 1, 200 do FrameOS.needsTick() end
+check(d.needs.hunger == 0 and d.needs.thirst == 0, 'needs never go below 0')
+check(not (d.needs.hunger < 0), '... (clamped)')
+r = ask(2, 'hospitalBill')
+check(d.needs.hunger == Config.needs.afterDeath and d.needs.thirst == Config.needs.afterDeath, 'waking up at the hospital lifts needs to the set level')
+d.needs.hunger = 90
+ask(2, 'hospitalBill')
+check(d.needs.hunger == 90, 'waking up never lowers needs')
+r = ask(2, 'admin', 'setneeds', 20, 5)
+check(r.result.ok and d.needs.hunger == 20 and d.needs.thirst == 5, 'admin /setneeds works')
+r = ask(2, 'admin', 'setneeds', 500, -3)
+check(d.needs.hunger == 100 and d.needs.thirst == 0, 'admin /setneeds is clamped to 0-100')
+
+-- a half-written needs table in an old file does not break the load
+fire('playerDropped', 2)
+files['playerdata/license_bbb.json'] = json.encode({ cash = 10, needs = { hunger = 'x' } })
+fire('frameos:join', 2)
+check(FrameOS.getPlayer(2).needs.hunger == 100 and FrameOS.getPlayer(2).needs.thirst == 100, 'a damaged needs table is repaired on load')
 
 -- buying
 d.cash = 5
