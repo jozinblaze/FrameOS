@@ -81,11 +81,11 @@ end
 local function run(f) local fn, e = loadfile(f); if not fn then error(e) end; return fn() end
 Config = {}
 run('config.lua')
-for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'data/jobs.lua', 'data/banks.lua', 'data/storage.lua' }) do run(f) end
+for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'data/jobs.lua', 'data/banks.lua', 'data/storage.lua', 'data/character.lua' }) do run(f) end
 Config.admins = { 'license:bbb' }
 Config.testCommands = true
 
-run('server/core.lua'); run('server/store.lua'); run('server/needs.lua'); run('server/economy.lua'); run('server/storage.lua')
+run('server/core.lua'); run('server/store.lua'); run('server/needs.lua'); run('server/character.lua'); run('server/economy.lua'); run('server/storage.lua')
 local ask = function(src, name, ...)
     -- go through the real frameos:ask event and catch the answer
     local got
@@ -228,6 +228,49 @@ fire('playerDropped', 2)
 files['playerdata/license_bbb.json'] = json.encode({ cash = 10, needs = { hunger = 'x' } })
 fire('frameos:join', 2)
 check(FrameOS.getPlayer(2).needs.hunger == 100 and FrameOS.getPlayer(2).needs.thirst == 100, 'a damaged needs table is repaired on load')
+
+-- the character
+local function sample()
+    local f = {}
+    for i = 1, 20 do f[i] = 0.5 end
+    return {
+        name = { first = '  jASON ', last = "o'neil-smith" }, sex = 'm',
+        look = { mother = 30, father = 5, shapeMix = 0.3, skinMix = 0.7, features = f,
+            overlays = { { id = 2, style = 5, opacity = 0.8, color = 4 }, { id = 4, style = 99, opacity = 1, color = 0 }, { id = 77, style = 1 } },
+            hair = { style = 12, color = 3, highlight = 9 }, eyes = 6 },
+        outfit = { parts = { { id = 11, drawable = 0, texture = 1 }, { id = 0, drawable = 5, texture = 0 }, { id = 2, drawable = 5, texture = 0 } }, props = { { id = 0, drawable = -1, texture = 0 } } },
+    }
+end
+local c, why = FrameOS.cleanCharacter(sample())
+check(c and c.name.first == 'Jason' and c.name.last == "O'neil-Smith", 'names are trimmed and capitalised')
+check(c.look.mother == 30 and c.look.father == 5 and c.look.eyes == 6, 'valid numbers are kept')
+check(#c.look.overlays == 1 and c.look.overlays[1].id == 2, 'an overlay style that does not exist, and an unknown overlay, are dropped')
+check(#c.outfit.parts == 1 and c.outfit.parts[1].id == 11, 'head (0) and hair (2) are not outfit slots')
+local bad = sample(); bad.look.mother = 9999; bad.look.father = -5; bad.look.shapeMix = 5; bad.look.features[3] = 0/0; bad.look.features[4] = 'x'; bad.look.hair.color = 1e9
+c = FrameOS.cleanCharacter(bad)
+check(c.look.mother == 41 and c.look.father == 0 and c.look.shapeMix == 1, 'out of range numbers are clamped')
+check(c.look.features[3] == 0 and c.look.features[4] == 0 and #c.look.features == 20, 'NaN and text in a slider become 0, always 20 sliders')
+check(c.look.hair.color == 63, 'hair color is clamped')
+bad = sample(); bad.sex = 'x'; check(FrameOS.cleanCharacter(bad) == nil, 'bad sex is refused')
+bad = sample(); bad.name.first = 'A'; check(FrameOS.cleanCharacter(bad) == nil, 'a one letter name is refused')
+bad = sample(); bad.name.last = 'Bob<script>'; check(FrameOS.cleanCharacter(bad) == nil, 'symbols in a name are refused')
+bad = sample(); bad.name.first = string.rep('a', 40); check(FrameOS.cleanCharacter(bad) == nil, 'a long name is refused')
+check(FrameOS.cleanCharacter('x') == nil and FrameOS.cleanCharacter({}) == nil, 'junk is refused')
+
+fire('frameos:join', 3)   -- a normal (non admin) player
+d = FrameOS.getPlayer(3)
+check(d.character == nil, 'a new player has no character')
+r = ask(3, 'saveCharacter', sample())
+check(r.result.ok and d.character and d.character.name.first == 'Jason', 'a player with no character can save one')
+check(FrameOS.characterName(3) == "Jason O'neil-Smith", 'FrameOS.characterName gives the full name')
+r = ask(3, 'saveCharacter', sample())
+check(r.result.ok == false, 'a normal player cannot change an existing character')
+r = ask(2, 'saveCharacter', sample())
+check(r.result.ok and FrameOS.getPlayer(2).character, 'an admin can (the /creator test command)')
+Config.testCommands = false
+r = ask(2, 'saveCharacter', sample())
+check(r.result.ok == false, 'even an admin cannot once test commands are off')
+Config.testCommands = true
 
 -- the store
 check(FrameOS.store.path('playerdata', 'license:ab/c.d') == 'playerdata/license_ab_c_d.json', 'store makes ids file-safe')

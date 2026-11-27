@@ -78,7 +78,10 @@ FrameOS.onSpawn(function()
     local saved = FrameOS.load('state', nil)
     if saved then
         -- ped and clothes first (this also changes the model if needed)
-        FrameOS.wearOutfit(saved.outfit)
+        -- with a character, the server's look was already put on (modules/character.lua)
+        if saved.outfit and not FrameOS.data.character then
+            FrameOS.wearOutfit(saved.outfit)
+        end
 
         -- waits for the ground to load first, so you don't fall through the map
         FrameOS.placePed(saved.x, saved.y, saved.z)

@@ -7,3 +7,6 @@ tests/client_test.lua loads modules/needs.lua with a pretend game and checks the
 and starving rules. Run it the same way:   lua tests/client_test.lua
 
 tests/corner_test.lua checks the stacking of the top right text lines (FrameOS.corner in core.lua).
+
+tests/creator_test.lua runs the real creator menu with scripted key presses against a pretend game
+and checks the saved character that comes out. Run it the same way:   lua tests/creator_test.lua

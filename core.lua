@@ -4,6 +4,7 @@
 FrameOS = {}
 FrameOS.commandList = {}   -- every command, so /frameos can list them
 FrameOS.spawnTasks = {}    -- things to do each time you spawn in
+FrameOS.uiHidden = false   -- true while something (the creator) takes over the screen: the HUD text hides
 
 -- shows a message in the corner of the screen and in the F8 console
 function FrameOS.notify(text)
@@ -76,7 +77,10 @@ CreateThread(function()
         Wait(0)
         local y = 0.03
         for _, fn in ipairs(cornerLines) do
-            local text, color, scale = fn()
+            local text, color, scale = nil, nil, nil
+            if not FrameOS.uiHidden then
+                text, color, scale = fn()
+            end
             if text then
                 scale = scale or 0.4
                 color = color or { 255, 255, 255 }

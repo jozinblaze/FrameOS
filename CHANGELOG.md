@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## v1.9.0: Freemode character and creator
+- Character creator opens on first join: name, gender, parents, 20 face sliders, skin overlays, hair, eyes, makeup, starting outfit
+- Character saved on the server (d.character); server/character.lua checks every number against data/character.lua
+- Saved character is put on you at every spawn; old local ped and outfit ignored once a character exists
+- /creator (admin test command) reopens it, /whoami shows your name
+- New data/character.lua; tests for the server checks and a creator test with scripted key presses
+
 ## 1.8.0 - Store, one corner renderer, module map
 - New server/store.lua: the one place saved data files are read and written (FrameOS.store.read / write / copy / setAside). Player saving, daily backups and .broken copies now go through it. File names and folders are unchanged, so nothing is migrated. A database later only has to replace this file
 - The top right text (money, job line, hunger and thirst line) is now one renderer, FrameOS.corner in core.lua: three per-frame threads became one, and the lines stack without overlapping

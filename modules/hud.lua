@@ -20,7 +20,7 @@ CreateThread(function()
         end
 
         -- minimap: only in a vehicle (unless you forced it on with /radar)
-        DisplayRadar(IsPedInAnyVehicle(PlayerPedId(), false) or radarOnFoot)
+        DisplayRadar((IsPedInAnyVehicle(PlayerPedId(), false) or radarOnFoot) and not FrameOS.uiHidden)
 
         -- turn off the GTA Online interaction menu (M) and the phone (up arrow)
         DisableControlAction(0, 244, true)
@@ -28,7 +28,7 @@ CreateThread(function()
 
         -- our own readout: street name, the time (only with a watch on)
         -- and your speed when you're in a vehicle
-        if showReadout then
+        if showReadout and not FrameOS.uiHidden then
             local ped = PlayerPedId()
             local lines = { street }
 

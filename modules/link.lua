@@ -58,6 +58,7 @@ local dataLoaded = false
 RegisterNetEvent('frameos:data', function(newData)
     local before = FrameOS.data.cash
     FrameOS.data = newData
+    FrameOS.loaded = true     -- the server's data has arrived (the creator and spawn flow wait for this)
     -- a change in cash shows as +$ or -$
     if dataLoaded and newData.cash ~= before then
         local difference = newData.cash - before

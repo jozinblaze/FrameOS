@@ -86,6 +86,7 @@ end
 -- other modules (state) need these two
 FrameOS.readOutfit = readOutfit
 FrameOS.wearOutfit = wearOutfit
+FrameOS.setModel = setModel   -- the character module uses this to become a freemode ped
 
 FrameOS.testCommand('ped', 'become a ped, example: /ped a_m_y_beach_01', function(source, args)
     if not args[1] then
@@ -190,7 +191,8 @@ end)
 
 -- on spawn: put on the "main" look if you saved one
 FrameOS.onSpawn(function()
-    if outfits['main'] then
+    -- once you have a character (modules/character.lua) the server's look is the only look
+    if outfits['main'] and not (FrameOS.data and FrameOS.data.character) then
         wearOutfit(outfits['main'])
     end
 end)

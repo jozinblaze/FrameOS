@@ -5,7 +5,7 @@ No QBCore, Qbox or ESX. Everything is one resource with small modules.
 
 ## Layout
 - `config.lua` - every setting you change
-- `data/` - items, vehicles and shops (the lists)
+- `data/` - items, vehicles, shops and everything the character creator offers (the lists)
 - `core.lua` - shared helpers: notify, save/load, blips, commands, spawn hook
 - `modules/` - one file per feature, loaded in the order of `fxmanifest.lua`
 - `server.lua` - tiny, only saves exported presets
@@ -15,6 +15,7 @@ No QBCore, Qbox or ESX. Everything is one resource with small modules.
   the ask system (`FrameOS.onAsk` on the server, `FrameOS.ask` on the client), rate limits, the log
   (`logs/frameos.log`) and the admin check
 - `server/store.lua` - the one place data files are read and written (a database could replace just this)
+- `server/character.lua` - the saved character and the checks on it (what the creator may send)
 - `server/needs.lua` - hunger and thirst (the server lowers them, items raise them)
 - `server.lua` - saves exported presets
 - needs `set onesync on` in server.cfg. make yourself admin with `/myid` and `Config.admins`

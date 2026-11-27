@@ -100,6 +100,7 @@ local function defaults()
         atmOut = 0,        -- cash taken from ATMs today
         bag = {},          -- item name -> how many
         needs = { hunger = 100, thirst = 100 },   -- 0 to 100, see server/needs.lua
+        -- character = nil until the creator is finished, see server/character.lua
         owned = {},        -- the cars you own
         storage = {},      -- container id -> items (car trunks and gloveboxes by plate, safehouse stashes)
         nextCarId = 1,
