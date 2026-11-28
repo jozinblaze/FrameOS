@@ -1,6 +1,7 @@
 -- storage: how much things can hold. weights are in kg and match the weights in data/items.lua.
 --
--- Config.bagWeight       what your bag can carry
+-- Config.bagWeight       what you can carry with no bag on
+-- Config.bags            the bags that carry more (see below)
 -- Config.gloveboxWeight  every owned car has a glovebox this big
 -- Config.stashWeight     every safehouse has a stash this big
 -- Config.trunkWeights    trunk size by vehicle category (the category written in data/vehicles.lua)
@@ -9,7 +10,24 @@
 -- only cars you own have storage (it is kept by the car's plate, in your save file).
 -- the server checks all of this, so changing a number here changes it for everyone.
 
-Config.bagWeight = 30
+Config.bagWeight = 20
+
+-- wearing one of these bags (clothing slot 5) adds to what you can carry. the key is the bag's drawable
+-- number (use /clothinfo to see the number of the bag you are wearing). extra = kg added, price = what it
+-- costs on top of the clothing store price when you buy it, name = what the store shows.
+-- THESE NUMBERS ARE PLACEHOLDERS: swap in the bag numbers you want. any other bag is only for looks.
+-- the server works the limit out from the bag saved on your character, so it cannot be faked.
+Config.bags = {
+    [40] = { name = 'Small bag',    extra = 10, price = 100 },
+    [41] = { name = 'Duffel bag',   extra = 20, price = 250 },
+    [44] = { name = 'Backpack',     extra = 30, price = 400 },
+    [45] = { name = 'Big backpack', extra = 45, price = 700 },
+    -- added after testing 1.11.0 (still guesses for kg and price, rename and adjust)
+    [81] = { name = 'Bag 81',       extra = 15, price = 150 },
+    [82] = { name = 'Bag 82',       extra = 15, price = 150 },
+    [85] = { name = 'Bag 85',       extra = 25, price = 300 },
+    [86] = { name = 'Bag 86',       extra = 25, price = 300 },
+}
 Config.gloveboxWeight = 5
 Config.stashWeight = 100
 

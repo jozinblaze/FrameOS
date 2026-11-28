@@ -52,6 +52,11 @@ end
 
 -- everything the server keeps for us (cash, bank, bag, owned cars, job rank).
 -- the server sends the whole thing after every change, we only show it.
+-- what you can carry (the server works it out from the bag you wear)
+function FrameOS.bagLimit()
+    return FrameOS.data.bagLimit or Config.bagWeight
+end
+
 FrameOS.data = { cash = 0, bank = 0, atmLeft = 0, bag = {}, owned = {}, jobrep = {}, needs = { hunger = 100, thirst = 100 }, wardrobe = {} }
 local dataLoaded = false
 

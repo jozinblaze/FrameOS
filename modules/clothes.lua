@@ -92,7 +92,14 @@ local function openClothingStore(index)
                 if count > 0 then
                     table.insert(out, M.choiceRow(slot.name, function() return entry.drawable end,
                         function(v) entry.drawable = v; entry.texture = 0; show() end,
-                        low, count - 1, function(v) return v < 0 and 'None' or tostring(v) end))
+                        low, count - 1, function(v)
+                            local text = v < 0 and 'None' or tostring(v)
+                            local bag = slot.kind == 'part' and slot.id == 5 and Config.bags and Config.bags[v]
+                            if bag then
+                                text = text .. '  ' .. bag.name .. ' (+' .. bag.extra .. ' kg, $' .. bag.price .. ')'
+                            end
+                            return text
+                        end))
                     if entry.drawable >= 0 then
                         local textures
                         if slot.kind == 'part' then

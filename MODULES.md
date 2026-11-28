@@ -43,7 +43,7 @@ to split one into its own resource.
 | `modules/needs.lua` | hunger and thirst effects, the status line, `/eat`, `/drink`, `/needs` | `FrameOS.playUseAnimation` | `link`, `inventory` (`useItem`), `core` (`corner`) |
 | `modules/character.lua` | putting your saved character on your ped, the spawn flow (character or creator) | `FrameOS.applyCharacter`, `applyLook`, `applyOutfit`, `readOutfitParts`, `/whoami` | `link`, `outfit` (`setModel`) |
 | `modules/menu.lua` | the shared menu: rows, key repeat, camera, controls | `FrameOS.menu` (`choiceRow`, `sliderRow`, `askText`, `camera`, `run`) | `core` (`drawText`) |
-| `modules/clothes.lua` | the clothing store, barber and wardrobe menus and circles | `FrameOS.openSafehouseWardrobe(name)` | `menu`, `character`, `link`, `safehouses` |
+| `modules/clothes.lua` | the clothing store, barber and wardrobe menus and circles | `FrameOS.openSafehouseWardrobe(name)` (bag prices come from `Config.bags`) | `menu`, `character`, `link`, `safehouses` |
 | `modules/creator.lua` | the creator menu and camera | `FrameOS.openCreator(editing)`, `/creator` (admin test command) | `menu`, `character`, `link`, `core` |
 | `modules/jobs.lua` and `modules/jobs/*.lua` | the job engine and one file per job | `FrameOS.registerJob`, `currentJob`, `jobRank`, `jobPay` | `link`, `cash`, `core` (`corner`) |
 | `modules/shop.lua` | item stores and car showrooms | the E prompt | `link`, `inventory`, `garage` |

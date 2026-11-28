@@ -30,6 +30,20 @@ function FrameOS.weightOf(items)
     return total
 end
 
+-- how much you can carry: the base, plus the bag you wear (clothing slot 5, from the outfit saved on the
+-- server, see Config.bags in data/storage.lua). taking the bag off never deletes anything, you just
+-- cannot add more until you are under the limit again.
+function FrameOS.bagLimit(d)
+    local limit = Config.bagWeight
+    local outfit = d and d.character and d.character.outfit
+    for _, part in ipairs(outfit and outfit.parts or {}) do
+        if part.id == 5 and Config.bags and Config.bags[part.drawable] then
+            limit = limit + Config.bags[part.drawable].extra
+        end
+    end
+    return limit
+end
+
 -- how much more cash the ATMs will give this player today
 local function atmLeft(d)
     if d.atmDay ~= os.date('%Y%m%d') then
@@ -44,7 +58,7 @@ function FrameOS.push(source)
     if d then
         TriggerClientEvent('frameos:data', source, {
             cash = d.cash, bank = d.bank, atmLeft = atmLeft(d), bag = d.bag, owned = d.owned, jobrep = d.jobrep,
-            needs = d.needs, character = d.character, wardrobe = d.wardrobe,
+            bagLimit = FrameOS.bagLimit(d), needs = d.needs, character = d.character, wardrobe = d.wardrobe,
         })
     end
 end
@@ -216,7 +230,7 @@ FrameOS.onAsk('buyItem', function(source, shopId, itemName, claimedStock)
         return no('They do not sell that')
     end
     -- check the bag has room BEFORE taking money (weapons and ammo don't go in the bag)
-    if not (item.weapon or item.ammoFor) and FrameOS.weightOf(d.bag) + (item.weight or 0) > Config.bagWeight + 0.0001 then
+    if not (item.weapon or item.ammoFor) and FrameOS.weightOf(d.bag) + (item.weight or 0) > FrameOS.bagLimit(d) + 0.0001 then
         return no('Your bag is too heavy')
     end
     if not FrameOS.takeCash(source, price, 'bought ' .. itemName .. ' at ' .. tostring(shopId)) then

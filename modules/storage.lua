@@ -96,7 +96,7 @@ function FrameOS.openStorage(kind, ref)
 
         FrameOS.drawText(box.label, 0.5, 0.17, 0.7, true)
         FrameOS.drawText('Cash ' .. FrameOS.formatMoney(FrameOS.getCash()), 0.5, 0.215, 0.4, true)
-        drawColumn('You', kg(weightOf(FrameOS.data.bag)) .. ' / ' .. kg(Config.bagWeight) .. ' kg',
+        drawColumn('You', kg(weightOf(FrameOS.data.bag)) .. ' / ' .. kg(FrameOS.bagLimit()) .. ' kg',
             bagList, indexBag, panel == 'bag', 0.33)
         drawColumn(box.label, kg(box.weight) .. ' / ' .. kg(box.size) .. ' kg',
             boxList, indexBox, panel == 'box', 0.67)
@@ -132,7 +132,7 @@ function FrameOS.openStorage(kind, ref)
                         if panel == 'bag' then
                             room = box.size - box.weight
                         else
-                            room = Config.bagWeight - weightOf(FrameOS.data.bag)
+                            room = FrameOS.bagLimit() - weightOf(FrameOS.data.bag)
                         end
                         count = math.min(count, math.floor((room + 0.0001) / weight))
                     end

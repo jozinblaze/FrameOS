@@ -120,7 +120,7 @@ FrameOS.onAsk('storageMove', function(source, kind, ref, direction, name, count)
         if (contents[name] or 0) < count then
             return no('It does not have that many')
         end
-        if FrameOS.weightOf(d.bag) + weight > Config.bagWeight + 0.0001 then
+        if FrameOS.weightOf(d.bag) + weight > FrameOS.bagLimit(d) + 0.0001 then
             return no('Your bag is too heavy')
         end
         contents[name] = contents[name] - count

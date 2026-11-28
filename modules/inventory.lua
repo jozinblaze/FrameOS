@@ -128,7 +128,7 @@ FrameOS.command('inv', 'shows what is in your bag', function()
                 total = total + Items[name].weight * count
             end
         end
-        FrameOS.notify(string.format('Bag %.1f/%.1f kg: ', total, Config.bagWeight) .. table.concat(lines, ', '))
+        FrameOS.notify(string.format('Bag %.1f/%.1f kg: ', total, FrameOS.bagLimit()) .. table.concat(lines, ', '))
     end
 end)
 

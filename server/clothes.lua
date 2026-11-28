@@ -97,6 +97,14 @@ local function mergeOutfit(saved, sent)
     return merged
 end
 
+-- the bag drawable (slot 5) in an outfit
+local function find5(outfit)
+    for _, part in ipairs(outfit.parts or {}) do
+        if part.id == 5 then return part.drawable end
+    end
+    return nil
+end
+
 FrameOS.onAsk('buyClothes', function(source, index, outfit)
     local d = FrameOS.getPlayer(source)
     if not d.character then
@@ -111,6 +119,11 @@ FrameOS.onAsk('buyClothes', function(source, index, outfit)
         return no('Nothing changed')
     end
     local price = store.price or Config.clothesPrice
+    -- a bag that carries more costs extra when it is new (changing back to the one you wear is free)
+    local oldBag, newBag = find5(d.character.outfit), find5(merged)
+    if newBag ~= oldBag and Config.bags and Config.bags[newBag] then
+        price = price + (Config.bags[newBag].price or 0)
+    end
     if not FrameOS.takeCash(source, price, 'clothes at store ' .. math.floor(index)) then
         return no('You need ' .. price .. ' in cash')
     end

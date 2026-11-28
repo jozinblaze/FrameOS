@@ -368,6 +368,20 @@ end
 r = ask(3, 'wardrobe', 'safehouse', 'nosuchplace', 'delete', 2)
 check(r.result.ok == false, 'wardrobe: a safehouse that does not exist is refused')
 
+-- bags
+put(store); pc.cash = 5000
+r = ask(3, 'buyClothes', 1, { parts = { { id = 5, drawable = 44, texture = 0 } }, props = {} })
+check(r.result.ok and pc.cash == 5000 - Config.clothesPrice - Config.bags[44].price, 'bag: a capacity bag costs its extra price')
+check(FrameOS.bagLimit(pc) == Config.bagWeight + Config.bags[44].extra, 'bag: the limit goes up by the bag extra')
+r = ask(3, 'buyClothes', 1, { parts = { { id = 5, drawable = 3, texture = 0 } }, props = {} })
+check(r.result.ok and FrameOS.bagLimit(pc) == Config.bagWeight, 'bag: a bag that is not in the table is only for looks, base limit')
+pc.character.outfit.parts = { { id = 5, drawable = 45, texture = 0 } }
+pc.bag = { burger = 1 }
+check(FrameOS.bagLimit(pc) == Config.bagWeight + Config.bags[45].extra, 'bag: the limit comes from the saved outfit')
+pc.character.outfit.parts = {}
+check(FrameOS.bagLimit(pc) == Config.bagWeight and pc.bag.burger == 1, 'bag: taking it off keeps your items, limit drops back')
+pc.bag = {}; pc.cash = 5000
+
 -- the store
 check(FrameOS.store.path('playerdata', 'license:ab/c.d') == 'playerdata/license_ab_c_d.json', 'store makes ids file-safe')
 local data, raw = FrameOS.store.read('playerdata', 'license:nobody')

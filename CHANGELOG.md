@@ -2,6 +2,15 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.11.1 - More bags
+- Config.bags gets the bags 81, 82, 85 and 86 that the 1.11.0 test missed. Their kg and price are guesses, change them and the names in data/storage.lua
+
+## 1.11.0 - Bags that carry more
+- Bags that carry more: the bag you wear (clothing slot 5) adds to what you can carry. With no bag the limit is Config.bagWeight (now 20 kg, it was 30). Config.bags in data/storage.lua lists the bags: drawable number, name, extra kg and extra price. The four entries there are PLACEHOLDERS, put your own bag numbers in (/clothinfo shows the number of the bag you wear). Any bag not listed is only for looks
+- The server works the limit out from the bag saved on your character (FrameOS.bagLimit in server/economy.lua), so it cannot be faked from the client. It is used for shop purchases and for moving items into your bag from a trunk, glovebox or stash. The limit is sent to the client for the stash screen and the bag readout
+- Clothing store: a capacity bag costs its listed price on top of the store price, and the Bag row shows its name, kg and price. Taking the bag off never deletes anything, you just cannot add more until you are under the limit
+- tests: bag limit, the bag price and the over-limit case
+
 ## 1.10.1 - Clothes keep their arms and top
 - Fix: after buying clothes and relogging, your top, undershirt and arms went back to default. Clothes are now put on in a fixed order: top first, then undershirt, then arms, then everything else (the game can reset the arms and undershirt when a top goes on, and the arms were being set before the top). Fixes the same thing for the creator and wardrobes
 - tests: creator test checks the order
