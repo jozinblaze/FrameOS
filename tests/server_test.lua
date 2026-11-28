@@ -81,11 +81,11 @@ end
 local function run(f) local fn, e = loadfile(f); if not fn then error(e) end; return fn() end
 Config = {}
 run('config.lua')
-for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'data/jobs.lua', 'data/banks.lua', 'data/storage.lua', 'data/character.lua' }) do run(f) end
+for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'data/jobs.lua', 'data/banks.lua', 'data/storage.lua', 'data/character.lua', 'data/clothes.lua' }) do run(f) end
 files['local.lua'] = "Config.admins = { 'license:bbb', 'license:ccc' }\nConfig.somethingElse = 5\nos.exit(1)\n"   -- the last line must not be able to run
 Config.testCommands = true
 
-run('server/core.lua'); run('server/store.lua'); run('server/needs.lua'); run('server/character.lua'); run('server/economy.lua'); run('server/storage.lua')
+run('server/core.lua'); run('server/store.lua'); run('server/needs.lua'); run('server/character.lua'); run('server/clothes.lua'); run('server/economy.lua'); run('server/storage.lua')
 local ask = function(src, name, ...)
     -- go through the real frameos:ask event and catch the answer
     local got
@@ -288,6 +288,85 @@ check(r.result.ok == false, 'a normal player cannot use saveClothes')
 r = ask(2, 'saveClothes', { parts = { { id = 11, drawable = 4, texture = 1 }, { id = 0, drawable = 9, texture = 0 } }, props = { { id = 6, drawable = 2, texture = 0 } } })
 check(r.result.ok and #FrameOS.getPlayer(2).character.outfit.parts == 1 and FrameOS.getPlayer(2).character.outfit.parts[1].drawable == 4, 'an admin can save what they wear (head slot dropped)')
 check(FrameOS.getPlayer(2).character.name.first == 'Jason', '... and the rest of the character is untouched')
+
+-- clothing stores, barbers, wardrobes
+local store, barber, wspot = Config.clothingStores[1], Config.barbers[1], Config.wardrobes[1]
+local pc = FrameOS.getPlayer(3)
+local function put(spot) pos.x, pos.y, pos.z = spot.x, spot.y, spot.z end
+local function newOutfit(top, hat)
+    return { parts = { { id = 11, drawable = top, texture = 0 }, { id = 4, drawable = 3, texture = 0 }, { id = 2, drawable = 99, texture = 0 } },
+             props = { { id = 0, drawable = hat, texture = 0 } } }
+end
+pc.cash = 1000
+put({ x = 0, y = 0, z = 0 })
+r = ask(3, 'buyClothes', 1, newOutfit(7, 3))
+check(r.result.ok == false and pc.cash == 1000, 'clothing store: refused when you are not there')
+put(store)
+r = ask(3, 'buyClothes', 1, newOutfit(7, 3))
+check(r.result.ok and pc.cash == 1000 - Config.clothesPrice, 'clothing store: bought, flat price taken')
+local function find(list, id) for _, e in ipairs(list) do if e.id == id then return e end end end
+check(find(pc.character.outfit.parts, 11).drawable == 7 and find(pc.character.outfit.props, 0).drawable == 3, '... and the new clothes are saved')
+check(find(pc.character.outfit.parts, 2) == nil, '... a slot that is not for sale (hair) is not taken from the client')
+r = ask(3, 'buyClothes', 1, newOutfit(7, 3))
+check(r.result.ok == false and r.result.why == 'Nothing changed' and pc.cash == 1000 - Config.clothesPrice, 'clothing store: no charge when nothing changed')
+pc.cash = 10
+r = ask(3, 'buyClothes', 1, newOutfit(8, 3))
+check(r.result.ok == false and find(pc.character.outfit.parts, 11).drawable == 7, 'clothing store: too poor, nothing changes')
+pc.cash = 1000
+r = ask(3, 'buyClothes', 99, newOutfit(8, 3))
+check(r.result.ok == false, 'clothing store: a store number that does not exist is refused')
+r = ask(3, 'buyClothes', 1, 'junk')
+check(r.result.ok == false, 'clothing store: junk is refused')
+
+local oldLook = FrameOS.cleanLook(pc.character.look)
+put(barber)
+local newLook = FrameOS.cleanLook(pc.character.look)
+newLook.hair.style = 5; newLook.eyes = 4
+newLook.overlays = { { id = 1, style = 2, opacity = 0.5, color = 3 }, { id = 0, style = 9, opacity = 1.0, color = 0 } }
+newLook.mother = 30; newLook.features[1] = 0.9
+local cashBefore = pc.cash
+r = ask(3, 'buyBarber', 1, newLook)
+check(r.result.ok and pc.cash == cashBefore - Config.barberPrice, 'barber: paid')
+check(pc.character.look.hair.style == 5 and pc.character.look.eyes == 4, 'barber: hair and eyes changed')
+local beard = nil
+for _, o in ipairs(pc.character.look.overlays) do if o.id == 1 then beard = o end end
+check(beard and beard.style == 2, 'barber: facial hair changed')
+local blemish = nil
+for _, o in ipairs(pc.character.look.overlays) do if o.id == 0 then blemish = o end end
+check(blemish == nil, 'barber: skin overlays are not taken from the client')
+check(pc.character.look.mother == oldLook.mother and pc.character.look.features[1] == oldLook.features[1], 'barber: parents and face shape stay the same')
+cashBefore = pc.cash
+r = ask(3, 'buyBarber', 1, newLook)
+check(r.result.ok == false and pc.cash == cashBefore, 'barber: no charge when nothing changed')
+put(store)
+newLook.hair.style = 6
+r = ask(3, 'buyBarber', 1, newLook)
+check(r.result.ok == false, 'barber: refused when you are at a clothing store instead')
+
+put(wspot)
+r = ask(3, 'wardrobe', 'spot', 1, 'save', 2, { name = 'Night out', outfit = newOutfit(12, -1) })
+check(r.result.ok and #pc.wardrobe == 1 and pc.wardrobe[1].slot == 2 and pc.wardrobe[1].name == 'Night out', 'wardrobe: saved into a slot')
+r = ask(3, 'wardrobe', 'spot', 1, 'save', 2, { name = '<b>x</b>', outfit = newOutfit(13, -1) })
+check(#pc.wardrobe == 1 and pc.wardrobe[1].name == 'Outfit 2', 'wardrobe: saving over a slot replaces it, a bad name becomes Outfit 2')
+r = ask(3, 'wardrobe', 'spot', 1, 'rename', 2, 'Date night')
+check(pc.wardrobe[1].name == 'Date night', 'wardrobe: rename')
+r = ask(3, 'wardrobe', 'spot', 1, 'wear', 2)
+check(r.result.ok and find(pc.character.outfit.parts, 11).drawable == 13, 'wardrobe: wearing a saved outfit changes your character outfit')
+r = ask(3, 'wardrobe', 'spot', 1, 'wear', 4)
+check(r.result.ok == false, 'wardrobe: an empty slot cannot be worn')
+r = ask(3, 'wardrobe', 'spot', 1, 'save', Config.wardrobeSlots + 1, { outfit = newOutfit(1, -1) })
+check(r.result.ok == false, 'wardrobe: a slot past the limit is refused')
+put({ x = 0, y = 0, z = 0 })
+r = ask(3, 'wardrobe', 'spot', 1, 'delete', 2)
+check(r.result.ok == false and #pc.wardrobe == 1, 'wardrobe: refused when you are not there')
+local house = next(Config.safehouses)
+if house then
+    put(Config.safehouses[house])
+    r = ask(3, 'wardrobe', 'safehouse', house, 'delete', 2)
+    check(r.result.ok and #pc.wardrobe == 0, 'wardrobe: works at a safehouse, delete')
+end
+r = ask(3, 'wardrobe', 'safehouse', 'nosuchplace', 'delete', 2)
+check(r.result.ok == false, 'wardrobe: a safehouse that does not exist is refused')
 
 -- the store
 check(FrameOS.store.path('playerdata', 'license:ab/c.d') == 'playerdata/license_ab_c_d.json', 'store makes ids file-safe')

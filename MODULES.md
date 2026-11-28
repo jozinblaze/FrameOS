@@ -20,6 +20,7 @@ to split one into its own resource.
 | `server/core.lua` | player files in memory, saving, the ask system, rate limits, the log, admin check, reading `local.lua` (your own admin list and import switch) | `FrameOS.getPlayer`, `markDirty`, `idOf`, `eachPlayer`, `onAsk`, `onRespawn`, `log`, `isAdmin` | `store` |
 | `server/store.lua` | how data files are read and written | `FrameOS.store.path / read / write / copy / setAside` | nothing |
 | `server/needs.lua` | hunger and thirst (`d.needs`) | `FrameOS.needsFull`, `needsEat`, `needsTick`; refills on respawn | `core` |
+| `server/clothes.lua` | clothing stores, barbers, wardrobes: where you stand, what may change, the price | asks `buyClothes`, `buyBarber`, `wardrobe` | `core`, `economy` (`takeCash`), `character`, `data/clothes.lua` |
 | `server/character.lua` | the saved character (`d.character`: name, sex, look, outfit) and the checks on it | asks `saveCharacter`, `saveClothes` (admin test); `FrameOS.cleanCharacter`, `cleanOutfit`, `characterName(source)` | `core`, `data/character.lua` |
 | `server/economy.lua` | cash, bank, the bag (`d.bag`), owned cars (`d.owned`), shop buying, item use, job pay, pickups, import, admin test requests | `FrameOS.addCash`, `takeCash`, `weightOf`, `push`; asks `buyItem buyVehicle sellVehicle useItem pickupCash hospitalBill jobPay jobRep bank import admin` | `core`, `needs` (for food and drink) |
 | `server/storage.lua` | trunks, gloveboxes and stashes (`d.storage`) | asks `storageOpen`, `storageMove` | `core`, `economy` (`weightOf`) |
@@ -41,7 +42,9 @@ to split one into its own resource.
 | `modules/storage.lua` | the trunk, glovebox and stash menu | `FrameOS.openStorage` | `link`, `inventory` |
 | `modules/needs.lua` | hunger and thirst effects, the status line, `/eat`, `/drink`, `/needs` | `FrameOS.playUseAnimation` | `link`, `inventory` (`useItem`), `core` (`corner`) |
 | `modules/character.lua` | putting your saved character on your ped, the spawn flow (character or creator) | `FrameOS.applyCharacter`, `applyLook`, `applyOutfit`, `readOutfitParts`, `/whoami` | `link`, `outfit` (`setModel`) |
-| `modules/creator.lua` | the creator menu and camera | `FrameOS.openCreator(editing)`, `/creator` (admin test command) | `character`, `link`, `core` |
+| `modules/menu.lua` | the shared menu: rows, key repeat, camera, controls | `FrameOS.menu` (`choiceRow`, `sliderRow`, `askText`, `camera`, `run`) | `core` (`drawText`) |
+| `modules/clothes.lua` | the clothing store, barber and wardrobe menus and circles | `FrameOS.openSafehouseWardrobe(name)` | `menu`, `character`, `link`, `safehouses` |
+| `modules/creator.lua` | the creator menu and camera | `FrameOS.openCreator(editing)`, `/creator` (admin test command) | `menu`, `character`, `link`, `core` |
 | `modules/jobs.lua` and `modules/jobs/*.lua` | the job engine and one file per job | `FrameOS.registerJob`, `currentJob`, `jobRank`, `jobPay` | `link`, `cash`, `core` (`corner`) |
 | `modules/shop.lua` | item stores and car showrooms | the E prompt | `link`, `inventory`, `garage` |
 | `modules/death.lua` | the death screen and respawn | `/respawn` | `link` |

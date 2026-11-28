@@ -15,36 +15,8 @@ end
 
 -- ---------------------------------------------------------------- small helpers
 
--- left / right / up / down with key repeat: true on the press, then again every 70 ms after holding 400 ms
-local holds = {}
-local function pressed(control)
-    local now = GetGameTimer()
-    if IsControlJustPressed(0, control) then
-        holds[control] = now + 400
-        return true
-    end
-    if IsControlPressed(0, control) and holds[control] and now > holds[control] then
-        holds[control] = now + 70
-        return true
-    end
-    return false
-end
-
--- the game's own keyboard box. returns the text, or nil if you cancel.
-local function askText(label, default, max)
-    AddTextEntry('FRAMEOS_TXT', label)
-    DisplayOnscreenKeyboard(1, 'FRAMEOS_TXT', '', default or '', '', '', '', max)
-    while UpdateOnscreenKeyboard() == 0 do
-        Wait(0)
-        DisableAllControlActions(0)
-    end
-    local result = nil
-    if UpdateOnscreenKeyboard() == 1 then
-        result = GetOnscreenKeyboardResult()
-    end
-    Wait(250)   -- so the Enter that closed the box is not also used in the menu
-    return result
-end
+local pressed, askText = FrameOS.menu.pressed, FrameOS.menu.askText
+local choiceRow, sliderRow = FrameOS.menu.choiceRow, FrameOS.menu.sliderRow
 
 -- ---------------------------------------------------------------- what the menu edits
 
@@ -110,34 +82,6 @@ local function payloadFrom(state)
 end
 
 -- ---------------------------------------------------------------- menu rows
--- a row is { label, text = function() -> what to show on the right, left = fn, right = fn, enter = fn }
-
-local function choiceRow(label, get, set, low, high, show)
-    local function step(direction)
-        local value = get() + direction
-        if value < low then value = high elseif value > high then value = low end
-        set(value)
-    end
-    return {
-        label = label,
-        text = function() return show and show(get()) or tostring(get()) end,
-        left = function() step(-1) end,
-        right = function() step(1) end,
-    }
-end
-
-local function sliderRow(label, get, set, low, high, step, show)
-    local function move(direction)
-        set(clamp(math.floor((get() + direction * step) * 100 + 0.5) / 100, low, high))
-    end
-    return {
-        label = label,
-        text = function() return show and show(get()) or string.format('%.2f', get()) end,
-        left = function() move(-1) end,
-        right = function() move(1) end,
-    }
-end
-
 -- where a parent's game number sits in its list, and the name the menu shows for it
 local function parentIndex(list, number)
     for i, entry in ipairs(list) do
@@ -173,27 +117,7 @@ function FrameOS.openCreator(editing)
     FreezeEntityPosition(ped, true)
     SetEntityInvincible(ped, true)
 
-    -- the camera: two views, worked out once from where you stand now. you can turn with A and D.
-    local faceAt = GetOffsetFromEntityInWorldCoords(ped, 0.0, 0.0, 0.62)
-    local faceCam = GetOffsetFromEntityInWorldCoords(ped, 0.0, 0.85, 0.65)
-    local bodyAt = GetOffsetFromEntityInWorldCoords(ped, 0.0, 0.0, 0.05)
-    local bodyCam = GetOffsetFromEntityInWorldCoords(ped, 0.0, 2.8, 0.45)
-    local camera = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
-    local view = 'body'
-
-    local function setView(which)
-        view = which
-        local from, at, fov = bodyCam, bodyAt, 45.0
-        if which == 'face' then
-            from, at, fov = faceCam, faceAt, 32.0
-        end
-        SetCamCoord(camera, from.x, from.y, from.z)
-        PointCamAtCoord(camera, at.x, at.y, at.z)
-        SetCamFov(camera, fov)
-    end
-    setView('body')
-    SetCamActive(camera, true)
-    RenderScriptCams(true, true, 700, true, true)
+    local camera = FrameOS.menu.camera()
 
     -- put the state on the ped. the model changes when the sex does.
     local function presetOutfit()
@@ -274,7 +198,6 @@ function FrameOS.openCreator(editing)
 
     -- the pages. each one builds its rows every frame, so rows can come and go (an overlay's strength).
     local pages = {}
-    local stack = { 'main' }
 
     pages.parents = { title = 'Parents', build = function()
         return {
@@ -335,7 +258,7 @@ function FrameOS.openCreator(editing)
     end }
 
     local function subpage(label, key)
-        return { label = label, text = function() return '>' end, enter = function() table.insert(stack, key) end }
+        return { label = label, text = function() return '>' end, enter = function() FrameOS.menu.openPage(key) end }
     end
 
     local done = false       -- Finish worked
@@ -372,78 +295,22 @@ function FrameOS.openCreator(editing)
         }
     end }
 
-    -- ---- the loop
-    local index = 1
-    local lastPage = 'main'
-    local remembered = {}   -- page -> the row you were on, so going back lands where you left
-    local heading = GetEntityHeading(PlayerPedId())
-    while not done and not leave do
-        Wait(0)
-        local page = pages[stack[#stack]]
-        local rows = page.build()
-        if stack[#stack] ~= lastPage then
-            remembered[lastPage] = index
-            lastPage = stack[#stack]
-            index = remembered[lastPage] or 1
-        end
-        index = clamp(index, 1, #rows)
-
-        -- draw: a window of 11 rows around the chosen one
-        FrameOS.drawText(page.title, 0.06, 0.10, 0.7)
-        local first = clamp(index - 5, 1, math.max(1, #rows - 10))
-        for slot = 0, math.min(10, #rows - first) do
-            local row = rows[first + slot]
-            local selected = (first + slot == index)
-            local y = 0.18 + slot * 0.042
-            local color = selected and { 255, 220, 80 } or { 255, 255, 255 }
-            FrameOS.drawText((selected and '> ' or '  ') .. row.label, 0.06, y, 0.45, false, color)
-            FrameOS.drawText(row.text(), 0.27, y, 0.45, false, color)
-        end
-        if first > 1 then FrameOS.drawText('...', 0.06, 0.15, 0.4) end
-        if first + 10 < #rows then FrameOS.drawText('...', 0.06, 0.18 + 11 * 0.042, 0.4) end
-        FrameOS.drawText('Up / Down choose    Left / Right change    Enter select    Backspace back',
-            0.06, 0.90, 0.35)
-        FrameOS.drawText('A / D turn    E face or full body camera', 0.06, 0.93, 0.35)
-
-        -- turn the ped
-        if IsControlPressed(0, 34) then
-            heading = heading + 90.0 * GetFrameTime()
-            SetEntityHeading(PlayerPedId(), heading)
-        elseif IsControlPressed(0, 35) then
-            heading = heading - 90.0 * GetFrameTime()
-            SetEntityHeading(PlayerPedId(), heading)
-        end
-        if IsControlJustPressed(0, 38) then
-            setView(view == 'body' and 'face' or 'body')
-        end
-
-        -- move around the menu
-        if pressed(172) then
-            index = index - 1
-            if index < 1 then index = #rows end
-        elseif pressed(173) then
-            index = index % #rows + 1
-        elseif pressed(174) then
-            if rows[index].left then rows[index].left() end
-        elseif pressed(175) then
-            if rows[index].right then rows[index].right() end
-        elseif IsControlJustPressed(0, 191) or IsControlJustPressed(0, 18) then
-            if rows[index].enter then rows[index].enter() end
-        elseif IsControlJustPressed(0, 177) then
-            if #stack > 1 then
-                table.remove(stack)
-            elseif editing then
+    -- ---- the loop (the menu itself is in modules/menu.lua)
+    FrameOS.menu.run({
+        pages = pages,
+        camera = camera,
+        finished = function() return done or leave end,
+        root = function()
+            if editing then
                 leave = true
             else
                 FrameOS.notify('Finish your character to start playing')
             end
-        end
-    end
+        end,
+    })
 
     -- put the screen back
-    RenderScriptCams(false, true, 700, true, true)
-    Wait(700)
-    DestroyCam(camera, false)
+    camera.close()
     if leave and saved then
         FrameOS.applyCharacter(saved)   -- cancelled: back to the saved look
     end

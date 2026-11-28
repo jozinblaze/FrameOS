@@ -62,6 +62,8 @@ local function cleanName(text)
 end
 
 -- the outfit: only the slots in the lists, numbers kept to a sane size. always returns a clean table.
+FrameOS.cleanName = cleanName   -- other server files use the same name rules
+
 function FrameOS.cleanOutfit(sent)
     local outfit = type(sent) == 'table' and sent or {}
     local clean = { parts = {}, props = {} }
@@ -89,42 +91,28 @@ function FrameOS.cleanOutfit(sent)
     return clean
 end
 
-function FrameOS.cleanCharacter(p)
-    if type(p) ~= 'table' or type(p.name) ~= 'table' or type(p.look) ~= 'table' then
-        return nil, 'Bad character'
-    end
-    local first, last = cleanName(p.name.first), cleanName(p.name.last)
-    if not first or not last then
-        return nil, 'Names need ' .. C.nameMin .. ' to ' .. C.nameMax .. ' letters'
-    end
-    if p.sex ~= 'm' and p.sex ~= 'f' then
-        return nil, 'Bad character'
-    end
-
-    local look = p.look
+-- the look (face, skin, hair, eyes): every number kept inside its list. always returns a clean table.
+function FrameOS.cleanLook(look)
+    look = type(look) == 'table' and look or {}
+    local hair = type(look.hair) == 'table' and look.hair or {}
     local clean = {
-        name = { first = first, last = last },
-        sex = p.sex,
-        look = {
-            mother = parent(look.mother, C.mothers),
-            father = parent(look.father, C.fathers),
-            shapeMix = round(number(look.shapeMix, 0, 1, 0.5)),
-            skinMix = round(number(look.skinMix, 0, 1, 0.5)),
-            features = {},
-            overlays = {},
-            hair = {
-                style = whole(type(look.hair) == 'table' and look.hair.style, 0, C.hairMax, 0),
-                color = whole(type(look.hair) == 'table' and look.hair.color, 0, C.hairColors, 0),
-                highlight = whole(type(look.hair) == 'table' and look.hair.highlight, 0, C.hairColors, 0),
-            },
-            eyes = whole(look.eyes, 0, C.eyeColors, 0),
+        mother = parent(look.mother, C.mothers),
+        father = parent(look.father, C.fathers),
+        shapeMix = round(number(look.shapeMix, 0, 1, 0.5)),
+        skinMix = round(number(look.skinMix, 0, 1, 0.5)),
+        features = {},
+        overlays = {},
+        hair = {
+            style = whole(hair.style, 0, C.hairMax, 0),
+            color = whole(hair.color, 0, C.hairColors, 0),
+            highlight = whole(hair.highlight, 0, C.hairColors, 0),
         },
-        outfit = { parts = {}, props = {} },
+        eyes = whole(look.eyes, 0, C.eyeColors, 0),
     }
 
     local features = type(look.features) == 'table' and look.features or {}
     for i = 1, #C.features do
-        clean.look.features[i] = round(number(features[i], -1, 1, 0))
+        clean.features[i] = round(number(features[i], -1, 1, 0))
     end
 
     -- overlays are a list of { id, style, opacity, color }. an overlay that is off is simply not in the list.
@@ -139,7 +127,7 @@ function FrameOS.cleanCharacter(p)
         local style = def and tonumber(sent.style)
         if def and not seen[def.id] and style and style >= 0 and style <= def.max then
             seen[def.id] = true
-            table.insert(clean.look.overlays, {
+            table.insert(clean.overlays, {
                 id = def.id,
                 style = math.floor(style),
                 opacity = round(number(sent.opacity, 0, 1, 1)),
@@ -147,9 +135,26 @@ function FrameOS.cleanCharacter(p)
             })
         end
     end
-
-    clean.outfit = FrameOS.cleanOutfit(p.outfit)
     return clean
+end
+
+function FrameOS.cleanCharacter(p)
+    if type(p) ~= 'table' or type(p.name) ~= 'table' or type(p.look) ~= 'table' then
+        return nil, 'Bad character'
+    end
+    local first, last = cleanName(p.name.first), cleanName(p.name.last)
+    if not first or not last then
+        return nil, 'Names need ' .. C.nameMin .. ' to ' .. C.nameMax .. ' letters'
+    end
+    if p.sex ~= 'm' and p.sex ~= 'f' then
+        return nil, 'Bad character'
+    end
+    return {
+        name = { first = first, last = last },
+        sex = p.sex,
+        look = FrameOS.cleanLook(p.look),
+        outfit = FrameOS.cleanOutfit(p.outfit),
+    }
 end
 
 FrameOS.onAsk('saveCharacter', function(source, payload)

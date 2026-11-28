@@ -2,6 +2,16 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.10.0 - Clothing stores, barbers, wardrobes
+- Clothing stores, barbers and wardrobes. The places come from your old config (data/clothes.lua): 15 clothing stores, 7 barbers and 15 outfit changers, with map icons. Walk into the circle and press E
+- Clothing store: your own character on a camera, a row per slot (hat, glasses, ear piece, mask, top, undershirt, arms, legs, shoes, neck, bag, watch, bracelet), each with a variant row. Buy takes one flat price (Config.clothesPrice, 150) and only if something changed. Walking away without buying puts your old clothes back
+- Barber: hair style, hair color, highlights, eye color, facial hair, eyebrows, makeup, blush, lipstick and chest hair (Config.barberOverlays). Flat price (Config.barberPrice, 60), no charge if nothing changed. Face shape, parents and skin stay creator only
+- Wardrobe: save what you wear into one of 5 slots (Config.wardrobeSlots), wear, rename or delete, always free. At the wardrobe spots and at every safehouse (press H). Saved outfits are in d.wardrobe, sent to the client with the rest of your data
+- The server checks everything (new server/clothes.lua): you must really stand at that store, barber or wardrobe, only the allowed slots or overlays are taken from the client (a hat cannot sneak in a hair change), the price is taken before anything is saved, and you need the cash
+- New modules/menu.lua: the shared menu (rows, key repeat, camera, controls). The creator now uses it too, nothing changes for you except that holding Shift moves number rows in steps of 10. FrameOS.cleanLook is new in server/character.lua and shared by the creator and the barber
+- data/clothes.lua is new (add to your repo), and fxmanifest.lua lists the new files. config.lua is unchanged
+- tests: server checks for stores, barbers and wardrobes, new tests/clothes_test.lua that plays the three menus, creator test still passes on the shared menu
+
 ## 1.9.2 - Your own settings survive updates
 - New local.lua (copy local.example.lua): your own admin ids and the import switch live there, are read by the server after config.lua, and are never part of an update, so copying a new version over your folder can no longer wipe your admin id. Only admins, importEnabled and importCashMax can be set from it
 - Fix: after an update replaced config.lua, Config.admins was empty again, so /creator could open but Finish said 'You already have a character'. /creator now tells you up front when you are not an admin

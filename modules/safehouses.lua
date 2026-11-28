@@ -82,11 +82,13 @@ CreateThread(function()
 
                 if dist < 1.5 then
                     -- ~INPUT_CONTEXT~ turns into the E key icon
-                    FrameOS.help('Press ~INPUT_CONTEXT~ to rest at ' .. name .. ', ~INPUT_DETONATE~ for the stash')
+                    FrameOS.help('Press ~INPUT_CONTEXT~ to rest at ' .. name .. ', ~INPUT_DETONATE~ for the stash, H for the wardrobe')
                     if IsControlJustPressed(0, 38) then   -- 38 is the E key
                         rest()
                     elseif IsControlJustPressed(0, 47) and FrameOS.openStorage then   -- 47 is the G key
                         FrameOS.openStorage('stash', name)
+                    elseif IsControlJustPressed(0, 74) and FrameOS.openSafehouseWardrobe then   -- 74 is the H key
+                        FrameOS.openSafehouseWardrobe(name)
                     end
                 end
             end

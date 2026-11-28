@@ -15,6 +15,7 @@ No QBCore, Qbox or ESX. Everything is one resource with small modules.
   the ask system (`FrameOS.onAsk` on the server, `FrameOS.ask` on the client), rate limits, the log
   (`logs/frameos.log`) and the admin check
 - `server/store.lua` - the one place data files are read and written (a database could replace just this)
+- `server/clothes.lua` - clothing stores, barbers and wardrobes (the server side)
 - `server/character.lua` - the saved character and the checks on it (what the creator may send)
 - `server/needs.lua` - hunger and thirst (the server lowers them, items raise them)
 - `server.lua` - saves exported presets

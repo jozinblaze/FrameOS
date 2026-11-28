@@ -44,7 +44,7 @@ function FrameOS.push(source)
     if d then
         TriggerClientEvent('frameos:data', source, {
             cash = d.cash, bank = d.bank, atmLeft = atmLeft(d), bag = d.bag, owned = d.owned, jobrep = d.jobrep,
-            needs = d.needs, character = d.character,
+            needs = d.needs, character = d.character, wardrobe = d.wardrobe,
         })
     end
 end

@@ -55,7 +55,7 @@ function FrameOS.command() end
 function FrameOS.testCommand() end
 function FrameOS.setModel(m) model = m; return true end
 function FrameOS.request(name, payload) if name == 'saveCharacter' then sent = payload end return { ok = true } end
-run('modules/character.lua'); run('modules/creator.lua')
+run('modules/menu.lua'); run('modules/character.lua'); run('modules/creator.lua')
 
 -- ---------------------------------------------------------- driving it
 local menu = coroutine.create(function() return FrameOS.openCreator(false) end)

@@ -14,6 +14,7 @@ shared_scripts {
     'data/banks.lua',
     'data/storage.lua',
     'data/character.lua',
+    'data/clothes.lua',
 }
 
 -- the server side. server/core.lua must come first.
@@ -22,6 +23,7 @@ server_scripts {
     'server/store.lua',        -- how saved data is read and written, right after core
     'server/needs.lua',
     'server/character.lua',
+    'server/clothes.lua',
     'server/economy.lua',
     'server/storage.lua',
     'server.lua',
@@ -45,7 +47,9 @@ client_scripts {
     'modules/storage.lua',     -- trunks, gloveboxes and stashes (uses the bag)
     'modules/needs.lua',       -- hunger and thirst (uses the bag, so it comes after it)
     'modules/character.lua',   -- puts your saved character on you at spawn (before state.lua)
+    'modules/menu.lua',        -- the shared on-screen menu, before the creator and the clothes
     'modules/creator.lua',     -- the creator menu, opened by character.lua when you have no character
+    'modules/clothes.lua',     -- clothing stores, barbers and wardrobes (uses the menu and the character)
     'modules/jobs.lua',        -- the job engine, job files come right after it
     'modules/jobs/courier.lua',
     'modules/jobs/pimp.lua',
