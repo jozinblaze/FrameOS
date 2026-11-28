@@ -41,14 +41,14 @@ local function resolve(source, d, kind, ref)
         if not car then
             return nil, 'That is not your car'
         end
-        local size = Config.gloveboxWeight
+        local size = Config.gloveboxCapacity(car.model)
         local label = (car.name or car.model) .. ' glovebox'
         if kind == 'trunk' then
             size = Config.trunkCapacity(car.model)
             label = (car.name or car.model) .. ' trunk'
         end
         if size <= 0 then
-            return nil, 'This vehicle has no storage'
+            return nil, kind == 'trunk' and 'This vehicle has no trunk' or 'This vehicle has no glovebox'
         end
         return kind .. ':' .. ref, size, label
     elseif kind == 'stash' then

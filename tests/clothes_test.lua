@@ -24,6 +24,12 @@ local at = { x = 0, y = 0, z = 0 }
 function PlayerPedId() return 100 end
 function GetEntityCoords() return vector3(at.x, at.y, at.z) end
 function DrawMarker() end
+local animsPlayed = {}
+function HasAnimDictLoaded() return true end
+function RequestAnimDict() end
+function IsEntityPlayingAnim() return false end
+function TaskPlayAnim(_, dict, name) animsPlayed[#animsPlayed + 1] = dict .. '/' .. name end
+function ClearPedTasks() animsPlayed.cleared = true end
 function GetPedDrawableVariationX() end
 function GetEntityModel() return model end
 function GetEntityHeading() return 0.0 end
@@ -87,6 +93,7 @@ at = { x = store.x, y = store.y, z = store.z }
 frames(300); tap(E)
 check(FrameOS.uiHidden == true, 'E at a clothing store opens the menu')
 tap(RIGHT)   -- first row (Hat): None -> 0
+check(animsPlayed[1] == 'clothingspecs/try_glasses_positive_a', 'changing the hat plays the glasses and hat animation')
 check(last('SetPedPropIndex') ~= nil, 'changing a clothing row shows it on the ped')
 heldDown[21] = true; tap(DOWN); heldDown[21] = nil
 tap(UP); tap(UP)   -- wraps to Buy
@@ -113,6 +120,9 @@ tap(RIGHT)   -- hair style
 tap(UP); tap(ENTER)   -- Pay
 check(requests[#requests].name == 'buyBarber' and requests[#requests][2].hair.style == 2, 'Pay sends the new hair style')
 frames(10)
+
+check(animsPlayed.cleared == true, 'the animation is cleared when the menu closes')
+local beforeBarber = #animsPlayed
 
 -- at a wardrobe, save into slot 1
 local w = Config.wardrobes[1]

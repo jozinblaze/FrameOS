@@ -2,7 +2,7 @@
 --
 -- Config.bagWeight       what you can carry with no bag on
 -- Config.bags            the bags that carry more (see below)
--- Config.gloveboxWeight  every owned car has a glovebox this big
+-- Config.gloveboxWeight  the glovebox of a car (see gloveboxWeights below for exceptions)
 -- Config.stashWeight     every safehouse has a stash this big
 -- Config.trunkWeights    trunk size by vehicle category (the category written in data/vehicles.lua)
 --                        0 means no trunk (bikes). a category not listed uses Config.trunkDefault.
@@ -29,6 +29,15 @@ Config.bags = {
     [86] = { name = 'Bag 86',       extra = 25, price = 300 },
 }
 Config.gloveboxWeight = 5
+
+-- gloveboxes by vehicle category. 0 means no glovebox (bikes). a category not listed uses gloveboxWeight.
+Config.gloveboxWeights = {
+    Bicycles = 0,
+    Motorcycles = 0,
+    Super = 3,
+    Vans = 8,
+    Commercial = 10,
+}
 Config.stashWeight = 100
 
 Config.trunkDefault = 30
@@ -45,14 +54,40 @@ Config.trunkWeights = {
     SUVs = 80,
     Offroad = 60,
     Vans = 100,
+    -- work vehicles: use these category names in data/vehicles.lua when you add trucks to a showroom
+    Utility = 120,
+    Commercial = 200,
+    Industrial = 300,
 }
+
+-- one model that should not follow its category (model name -> kg, 0 = no trunk). examples:
+--   Config.trunkByModel = { bison = 150, rumpo = 160 }
+Config.trunkByModel = {}
+Config.gloveboxByModel = {}
+
 
 -- the trunk size for a car model (0 = no trunk). both sides use this.
 function Config.trunkCapacity(model)
+    if Config.trunkByModel[model] ~= nil then
+        return Config.trunkByModel[model]
+    end
     local info = Vehicles[model]
     local size = info and info.category and Config.trunkWeights[info.category]
     if size == nil then
         size = Config.trunkDefault
+    end
+    return size
+end
+
+-- the glovebox size for a car model (0 = no glovebox). both sides use this.
+function Config.gloveboxCapacity(model)
+    if Config.gloveboxByModel[model] ~= nil then
+        return Config.gloveboxByModel[model]
+    end
+    local info = Vehicles[model]
+    local size = info and info.category and Config.gloveboxWeights[info.category]
+    if size == nil then
+        size = Config.gloveboxWeight
     end
     return size
 end

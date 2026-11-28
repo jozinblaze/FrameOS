@@ -16,6 +16,43 @@ end
 
 local busy = false   -- one menu at a time
 
+-- ---------------------------------------------------------------- animations
+-- a short animation when you change a slot (clothing store), an idle in the barber chair.
+-- nothing here can break the menu: no animation, or one that does not load, is just skipped.
+
+local function loadAnim(dict)
+    if HasAnimDictLoaded(dict) then
+        return true
+    end
+    RequestAnimDict(dict)
+    local waited = 0
+    while not HasAnimDictLoaded(dict) and waited < 1000 do
+        Wait(50)
+        waited = waited + 50
+    end
+    return HasAnimDictLoaded(dict)
+end
+
+-- plays Config.clothesAnims[key] once on your ped (skipped if it is already playing)
+local function playAnim(key, looped)
+    if not Config.clothesAnimations then return end
+    local anim = Config.clothesAnims[key]
+    if not anim then return end
+    CreateThread(function()
+        local ped = PlayerPedId()
+        if not IsEntityPlayingAnim(ped, anim[1], anim[2], 3) and loadAnim(anim[1]) then
+            -- 0 plays it once all over the body, 1 loops it
+            TaskPlayAnim(PlayerPedId(), anim[1], anim[2], 4.0, -4.0, looped and -1 or 2500, looped and 1 or 0, 0.0, false, false, false)
+        end
+    end)
+end
+
+local function stopAnim()
+    if Config.clothesAnimations then
+        ClearPedTasks(PlayerPedId())
+    end
+end
+
 -- ---------------------------------------------------------------- the screen around a menu
 
 -- freezes you, starts the camera, runs fn, then puts everything back
@@ -27,6 +64,7 @@ local function withCamera(fn)
     SetEntityInvincible(ped, true)
     local camera = M.camera()
     local ok, err = pcall(fn, camera)
+    stopAnim()
     camera.close()
     local after = PlayerPedId()
     FreezeEntityPosition(after, false)
@@ -91,7 +129,7 @@ local function openClothingStore(index)
                 end
                 if count > 0 then
                     table.insert(out, M.choiceRow(slot.name, function() return entry.drawable end,
-                        function(v) entry.drawable = v; entry.texture = 0; show() end,
+                        function(v) entry.drawable = v; entry.texture = 0; show(); playAnim(Config.clothesAnimFor[slot.kind .. ':' .. slot.id]) end,
                         low, count - 1, function(v)
                             local text = v < 0 and 'None' or tostring(v)
                             local bag = slot.kind == 'part' and slot.id == 5 and Config.bags and Config.bags[v]
@@ -109,7 +147,7 @@ local function openClothingStore(index)
                         end
                         if textures > 1 then
                             table.insert(out, M.choiceRow('   Variant', function() return entry.texture end,
-                                function(v) entry.texture = v; show() end, 0, textures - 1))
+                                function(v) entry.texture = v; show(); playAnim(Config.clothesAnimFor[slot.kind .. ':' .. slot.id]) end, 0, textures - 1))
                         end
                     end
                 end
@@ -149,6 +187,7 @@ local function openBarber(index)
         FrameOS.applyCharacter(saved)
         FreezeEntityPosition(PlayerPedId(), true)
         SetEntityInvincible(PlayerPedId(), true)
+        playAnim(saved.sex == 'f' and 'barberF' or 'barber', true)   -- sits and waits while you pick
 
         -- a working copy of your look: overlays keyed by id while editing
         local look = {

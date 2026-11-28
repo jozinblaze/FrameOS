@@ -85,3 +85,22 @@ Config.wardrobes = {
     { label = 'Wardrobe', x = -1203.79, y = -1454.53, z = 3.38 },
     { label = 'Wardrobe', x = 120.44, y = -227.38, z = 53.56 },
 }
+
+-- animations while you use a clothing store or a barber (GTA Online style). false turns them all off.
+-- each is { dictionary, animation }. a slot not listed here plays nothing. if a name is wrong the game
+-- just does not play it, nothing breaks.
+Config.clothesAnimations = true
+Config.clothesAnims = {
+    top      = { 'clothingshirt', 'try_shirt_positive_a' },       -- top, undershirt, arms
+    legs     = { 'clothingtrousers', 'try_trousers_positive_a' },
+    shoes    = { 'clothingshoes', 'try_shoes_positive_a' },
+    glasses  = { 'clothingspecs', 'try_glasses_positive_a' },     -- hat and glasses
+    barber   = { 'mp_character_creation@customise@male_a', 'loop' },   -- the idle in the barber chair
+    barberF  = { 'mp_character_creation@customise@female_a', 'loop' },
+}
+-- which Config.clothesSlots entry plays which animation (kind and id from the slots list above)
+Config.clothesAnimFor = {
+    ['part:11'] = 'top', ['part:8'] = 'top', ['part:3'] = 'top',
+    ['part:4'] = 'legs', ['part:6'] = 'shoes',
+    ['prop:0'] = 'glasses', ['prop:1'] = 'glasses',
+}

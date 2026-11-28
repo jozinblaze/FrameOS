@@ -192,7 +192,7 @@ CreateThread(function()
             if IsPedInAnyVehicle(ped, false) then
                 local car, plate = ownedCar(GetVehiclePedIsIn(ped, false))
                 -- only offer it when the car is nearly stopped, the prompt is distracting while driving
-                if car and GetEntitySpeed(GetVehiclePedIsIn(ped, false)) < 1.0 then
+                if car and Config.gloveboxCapacity(car.model) > 0 and GetEntitySpeed(GetVehiclePedIsIn(ped, false)) < 1.0 then
                     sleep = 0
                     FrameOS.help('Press ~INPUT_DETONATE~ to open the glovebox')
                     if IsControlJustPressed(0, 47) then   -- 47 is the G key

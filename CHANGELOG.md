@@ -2,6 +2,13 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.12.0 - Store animations, storage by vehicle
+- Clothing stores play a GTA Online style animation when you change a slot (top, undershirt and arms try a shirt on, legs try trousers, shoes try shoes, hat and glasses use the glasses animation). At the barber your character sits in the creator idle while you pick. Everything is in data/clothes.lua (Config.clothesAnimations = false turns it off, Config.clothesAnims and clothesAnimFor choose them). A wrong or missing animation is just skipped
+- Storage by vehicle: gloveboxes now depend on the vehicle too. Bikes and bicycles have no trunk and no glovebox (the prompt is not shown and the server refuses it, with 'This vehicle has no trunk' or 'no glovebox'). Config.gloveboxWeights sets glovebox size by category (supercars 3 kg, vans 8 kg, bikes none)
+- Work vehicles: new categories Utility (120 kg), Commercial (200 kg) and Industrial (300 kg) in Config.trunkWeights. Use those category names in data/vehicles.lua when trucks are added. Vans stay at 100 kg
+- One-off sizes: Config.trunkByModel and Config.gloveboxByModel in data/storage.lua override a single model (example in the comment, 0 means none)
+- tests: bike has no trunk or glovebox, a car has a glovebox, model overrides, the animations
+
 ## 1.11.1 - More bags
 - Config.bags gets the bags 81, 82, 85 and 86 that the 1.11.0 test missed. Their kg and price are guesses, change them and the names in data/storage.lua
 

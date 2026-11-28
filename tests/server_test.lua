@@ -185,6 +185,23 @@ ask(2, 'storageMove', 'trunk', 'FRTEST1', 'out', 'burger', 2)
 r = ask(2, 'sellVehicle', 1)
 check(r.result.ok == true, 'an emptied car can be sold')
 
+-- storage depends on the vehicle
+d.owned = { { id = 2, model = 'faggio', name = 'Faggio', price = 4000, plate = 'BIKE1' }, { id = 3, model = 'futo', name = 'Futo', price = 1000, plate = 'CAR1' } }
+d.bag = { burger = 2 }
+r = ask(2, 'storageMove', 'trunk', 'BIKE1', 'in', 'burger', 1)
+check(r.result.ok == false and r.result.why == 'This vehicle has no trunk', 'a bike has no trunk')
+r = ask(2, 'storageMove', 'glove', 'BIKE1', 'in', 'burger', 1)
+check(r.result.ok == false and r.result.why == 'This vehicle has no glovebox', 'a bike has no glovebox')
+r = ask(2, 'storageMove', 'glove', 'CAR1', 'in', 'burger', 1)
+check(r.result.ok, 'a car has a glovebox')
+check(Config.trunkCapacity('rumpo') ~= nil and Config.trunkWeights.Commercial > Config.trunkWeights.Sedans, 'work vehicle categories carry more than a sedan')
+Config.trunkByModel.futo = 500
+check(Config.trunkCapacity('futo') == 500, 'a model override beats its category')
+Config.trunkByModel.futo = nil
+Config.gloveboxByModel.futo = 0
+check(Config.gloveboxCapacity('futo') == 0, 'a glovebox override of 0 removes it')
+Config.gloveboxByModel.futo = nil
+
 -- hunger and thirst
 d = FrameOS.getPlayer(2)
 check(d.needs.hunger == 100 and d.needs.thirst == 100, 'a new player starts fed and watered')
