@@ -2,6 +2,10 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.10.1 - Clothes keep their arms and top
+- Fix: after buying clothes and relogging, your top, undershirt and arms went back to default. Clothes are now put on in a fixed order: top first, then undershirt, then arms, then everything else (the game can reset the arms and undershirt when a top goes on, and the arms were being set before the top). Fixes the same thing for the creator and wardrobes
+- tests: creator test checks the order
+
 ## 1.10.0 - Clothing stores, barbers, wardrobes
 - Clothing stores, barbers and wardrobes. The places come from your old config (data/clothes.lua): 15 clothing stores, 7 barbers and 15 outfit changers, with map icons. Walk into the circle and press E
 - Clothing store: your own character on a camera, a row per slot (hat, glasses, ear piece, mask, top, undershirt, arms, legs, shoes, neck, bag, watch, bracelet), each with a variant row. Buy takes one flat price (Config.clothesPrice, 150) and only if something changed. Walking away without buying puts your old clothes back

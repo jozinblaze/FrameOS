@@ -17,8 +17,26 @@ local function clamp(n, low, high)
     return math.max(low, math.min(high, n))
 end
 
+-- the top (11) is put on first, then the undershirt (8), then the arms (3), then everything else.
+-- the game can change the arms and undershirt by itself when a top goes on, so the arms must come
+-- after the top, or they snap back to default (this was the 1.10.0 "top, arms, undershirt reverted" bug).
+local partOrder = { [11] = 1, [8] = 2, [3] = 3 }
+
+local function inOrder(parts)
+    local list = {}
+    for i, part in ipairs(parts or {}) do
+        list[i] = part
+    end
+    table.sort(list, function(a, b)
+        local x, y = partOrder[a.id] or 9, partOrder[b.id] or 9
+        if x ~= y then return x < y end
+        return a.id < b.id
+    end)
+    return list
+end
+
 function FrameOS.applyOutfit(ped, outfit)
-    for _, part in ipairs(outfit.parts or {}) do
+    for _, part in ipairs(inOrder(outfit.parts)) do
         local count = GetNumberOfPedDrawableVariations(ped, part.id)
         if count > 0 then
             local drawable = clamp(part.drawable, 0, count - 1)

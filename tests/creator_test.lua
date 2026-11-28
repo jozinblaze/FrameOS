@@ -135,5 +135,12 @@ local seen = {}
 for _, call in ipairs(calls) do if call.name == 'SetPedHeadOverlay' then seen[call[2]] = call[3] end end
 check(seen[2] == 1 and seen[4] == 3 and seen[0] == 255, 'overlays saved as a list are applied by id (and the ones not in the list are turned off)')
 
+-- the top goes on before the undershirt and the arms (the game can reset them when a top goes on)
+calls = {}
+FrameOS.applyOutfit(100, { parts = { { id = 3, drawable = 4, texture = 0 }, { id = 4, drawable = 1, texture = 0 }, { id = 8, drawable = 5, texture = 0 }, { id = 11, drawable = 9, texture = 0 } }, props = {} })
+local order = {}
+for _, call in ipairs(calls) do if call.name == 'SetPedComponentVariation' then order[#order + 1] = call[2] end end
+check(table.concat(order, ',') == '11,8,3,4', 'applyOutfit puts the top on first, then undershirt, then arms')
+
 say(fails == 0 and '\nALL PASSED' or ('\n' .. fails .. ' FAILED'))
 os.exit(fails == 0 and 0 or 1)
