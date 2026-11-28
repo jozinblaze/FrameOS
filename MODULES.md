@@ -17,10 +17,10 @@ to split one into its own resource.
 
 | File | Owns | Offers | Needs |
 |---|---|---|---|
-| `server/core.lua` | player files in memory, saving, the ask system, rate limits, the log, admin check | `FrameOS.getPlayer`, `markDirty`, `idOf`, `eachPlayer`, `onAsk`, `onRespawn`, `log`, `isAdmin` | `store` |
+| `server/core.lua` | player files in memory, saving, the ask system, rate limits, the log, admin check, reading `local.lua` (your own admin list and import switch) | `FrameOS.getPlayer`, `markDirty`, `idOf`, `eachPlayer`, `onAsk`, `onRespawn`, `log`, `isAdmin` | `store` |
 | `server/store.lua` | how data files are read and written | `FrameOS.store.path / read / write / copy / setAside` | nothing |
 | `server/needs.lua` | hunger and thirst (`d.needs`) | `FrameOS.needsFull`, `needsEat`, `needsTick`; refills on respawn | `core` |
-| `server/character.lua` | the saved character (`d.character`: name, sex, look, outfit) and the checks on it | ask `saveCharacter`; `FrameOS.cleanCharacter`, `FrameOS.characterName(source)` | `core`, `data/character.lua` |
+| `server/character.lua` | the saved character (`d.character`: name, sex, look, outfit) and the checks on it | asks `saveCharacter`, `saveClothes` (admin test); `FrameOS.cleanCharacter`, `cleanOutfit`, `characterName(source)` | `core`, `data/character.lua` |
 | `server/economy.lua` | cash, bank, the bag (`d.bag`), owned cars (`d.owned`), shop buying, item use, job pay, pickups, import, admin test requests | `FrameOS.addCash`, `takeCash`, `weightOf`, `push`; asks `buyItem buyVehicle sellVehicle useItem pickupCash hospitalBill jobPay jobRep bank import admin` | `core`, `needs` (for food and drink) |
 | `server/storage.lua` | trunks, gloveboxes and stashes (`d.storage`) | asks `storageOpen`, `storageMove` | `core`, `economy` (`weightOf`) |
 | `server.lua` | saving `/exportpresets` text | nothing | `core` (`isAdmin`) |

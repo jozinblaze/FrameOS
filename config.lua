@@ -26,6 +26,7 @@ Config.msPerGameMinute = 2000
 -- commands that touch money and items). type /myid in game to get yours, then
 -- paste it here, like { 'license:0123abcd...' }. you can also give the permission
 -- frameos.admin in server.cfg instead.
+-- better: put it in local.lua (copy local.example.lua), which updates never overwrite.
 Config.admins = {}
 
 -- one switch for everything that is for testing or building, not for playing:

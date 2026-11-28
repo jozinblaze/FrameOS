@@ -14,6 +14,32 @@
 FrameOS = {}
 
 local resource = GetCurrentResourceName()
+
+-- local.lua: YOUR settings for this server (who is an admin, the import switch). it is read here, once,
+-- after config.lua, and only these two names can be changed from it. an update never contains this
+-- file, so copying a new version over your folder can't wipe your admin id any more.
+-- see local.example.lua. a missing file is fine, a broken one is reported and ignored.
+do
+    local raw = LoadResourceFile(resource, 'local.lua')
+    if raw then
+        local mine = {}
+        local chunk, err = load(raw, 'local.lua', 't', { Config = mine })
+        if chunk then
+            local ok, problem = pcall(chunk)
+            if not ok then
+                print('[FrameOS] local.lua has an error, ignoring what came after it: ' .. tostring(problem))
+            end
+        else
+            print('[FrameOS] local.lua could not be read: ' .. tostring(err))
+        end
+        for _, name in ipairs({ 'admins', 'importEnabled', 'importCashMax' }) do
+            if mine[name] ~= nil then
+                Config[name] = mine[name]
+            end
+        end
+    end
+end
+
 local records = {}        -- player source -> { id, path, data, dirty }
 local askHandlers = {}    -- request name -> { fn, every }
 local floods = {}         -- player source -> { count, since }

@@ -18,7 +18,7 @@ No QBCore, Qbox or ESX. Everything is one resource with small modules.
 - `server/character.lua` - the saved character and the checks on it (what the creator may send)
 - `server/needs.lua` - hunger and thirst (the server lowers them, items raise them)
 - `server.lua` - saves exported presets
-- needs `set onesync on` in server.cfg. make yourself admin with `/myid` and `Config.admins`
+- needs `set onesync on` in server.cfg. make yourself admin with `/myid`, then put the id in `local.lua` (copy `local.example.lua`; updates never overwrite it)
 
 - `MODULES.md` - what every module owns, offers and needs; read it before adding one
 

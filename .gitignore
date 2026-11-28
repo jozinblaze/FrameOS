@@ -2,3 +2,4 @@ playerdata/*.json
 playerdata/*.broken-*
 logs/*.log
 exported_presets.lua
+local.lua

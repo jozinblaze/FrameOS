@@ -82,7 +82,7 @@ local function run(f) local fn, e = loadfile(f); if not fn then error(e) end; re
 Config = {}
 run('config.lua')
 for _, f in ipairs({ 'data/items.lua', 'data/vehicles.lua', 'data/shops.lua', 'data/jobs.lua', 'data/banks.lua', 'data/storage.lua', 'data/character.lua' }) do run(f) end
-Config.admins = { 'license:bbb' }
+files['local.lua'] = "Config.admins = { 'license:bbb', 'license:ccc' }\nConfig.somethingElse = 5\nos.exit(1)\n"   -- the last line must not be able to run
 Config.testCommands = true
 
 run('server/core.lua'); run('server/store.lua'); run('server/needs.lua'); run('server/character.lua'); run('server/economy.lua'); run('server/storage.lua')
@@ -277,6 +277,17 @@ Config.testCommands = false
 r = ask(2, 'saveCharacter', sample())
 check(r.result.ok == false, 'even an admin cannot once test commands are off')
 Config.testCommands = true
+
+-- local.lua
+check(Config.admins[1] == 'license:bbb' and Config.admins[2] == 'license:ccc', 'local.lua sets the admins')
+check(Config.somethingElse == nil, 'local.lua can only change admins, importEnabled and importCashMax')
+
+-- /saveclothes
+r = ask(3, 'saveClothes', { parts = { { id = 11, drawable = 4, texture = 1 } }, props = {} })
+check(r.result.ok == false, 'a normal player cannot use saveClothes')
+r = ask(2, 'saveClothes', { parts = { { id = 11, drawable = 4, texture = 1 }, { id = 0, drawable = 9, texture = 0 } }, props = { { id = 6, drawable = 2, texture = 0 } } })
+check(r.result.ok and #FrameOS.getPlayer(2).character.outfit.parts == 1 and FrameOS.getPlayer(2).character.outfit.parts[1].drawable == 4, 'an admin can save what they wear (head slot dropped)')
+check(FrameOS.getPlayer(2).character.name.first == 'Jason', '... and the rest of the character is untouched')
 
 -- the store
 check(FrameOS.store.path('playerdata', 'license:ab/c.d') == 'playerdata/license_ab_c_d.json', 'store makes ids file-safe')

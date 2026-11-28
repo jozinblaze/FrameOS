@@ -2,6 +2,12 @@
 
 Newest first. Every entry is one commit and one git tag.
 
+## 1.9.2 - Your own settings survive updates
+- New local.lua (copy local.example.lua): your own admin ids and the import switch live there, are read by the server after config.lua, and are never part of an update, so copying a new version over your folder can no longer wipe your admin id. Only admins, importEnabled and importCashMax can be set from it
+- Fix: after an update replaced config.lua, Config.admins was empty again, so /creator could open but Finish said 'You already have a character'. /creator now tells you up front when you are not an admin
+- New /saveclothes (admin test command): saves what you are wearing right now as your character's outfit, checked by the server. It is how starter outfits get tuned until the clothing stores exist. (/cloth on its own is a local test command: your saved character outfit is put back at every spawn, by design)
+- tests: local.lua loading (and that it cannot run anything but set those three settings), saveClothes
+
 ## 1.9.1 - Every parent face, with names
 - The creator now offers every parent face the game has, with names: fathers 0 to 20 plus John, Niko and Claude (42 to 44), mothers 21 to 41 plus Misty (45). The Mother and Father rows show the name and the game's number, for example Sophia (31) and Santiago (16)
 - The parent lists live in data/character.lua as { number, name }. The server only accepts numbers from those lists (a father number sent as a mother, or a number that does not exist, becomes the first in the list)

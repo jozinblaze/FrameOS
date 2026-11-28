@@ -126,6 +126,14 @@ FrameOS.onSpawn(function()
     end
 end)
 
+FrameOS.testCommand('saveclothes', 'saves what you are wearing as your character outfit (admins)', function()
+    CreateThread(function()
+        if FrameOS.request('saveClothes', FrameOS.readOutfitParts(PlayerPedId())) then
+            FrameOS.notify('Outfit saved to your character')
+        end
+    end)
+end)
+
 FrameOS.command('whoami', 'shows your character name', function()
     local c = FrameOS.data.character
     if c then

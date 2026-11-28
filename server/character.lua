@@ -61,6 +61,34 @@ local function cleanName(text)
     end))
 end
 
+-- the outfit: only the slots in the lists, numbers kept to a sane size. always returns a clean table.
+function FrameOS.cleanOutfit(sent)
+    local outfit = type(sent) == 'table' and sent or {}
+    local clean = { parts = {}, props = {} }
+    local allowedPart, allowedProp = {}, {}
+    for _, id in ipairs(C.outfitParts) do allowedPart[id] = true end
+    for _, id in ipairs(C.outfitProps) do allowedProp[id] = true end
+    for _, part in ipairs(type(outfit.parts) == 'table' and outfit.parts or {}) do
+        if type(part) == 'table' and allowedPart[tonumber(part.id)] then
+            table.insert(clean.parts, {
+                id = math.floor(tonumber(part.id)),
+                drawable = whole(part.drawable, 0, 500, 0),
+                texture = whole(part.texture, 0, 100, 0),
+            })
+        end
+    end
+    for _, prop in ipairs(type(outfit.props) == 'table' and outfit.props or {}) do
+        if type(prop) == 'table' and allowedProp[tonumber(prop.id)] then
+            table.insert(clean.props, {
+                id = math.floor(tonumber(prop.id)),
+                drawable = whole(prop.drawable, -1, 500, -1),
+                texture = whole(prop.texture, 0, 100, 0),
+            })
+        end
+    end
+    return clean
+end
+
 function FrameOS.cleanCharacter(p)
     if type(p) ~= 'table' or type(p.name) ~= 'table' or type(p.look) ~= 'table' then
         return nil, 'Bad character'
@@ -120,29 +148,7 @@ function FrameOS.cleanCharacter(p)
         end
     end
 
-    -- the outfit: only the slots in the lists, numbers kept to a sane size
-    local outfit = type(p.outfit) == 'table' and p.outfit or {}
-    local allowedPart, allowedProp = {}, {}
-    for _, id in ipairs(C.outfitParts) do allowedPart[id] = true end
-    for _, id in ipairs(C.outfitProps) do allowedProp[id] = true end
-    for _, part in ipairs(type(outfit.parts) == 'table' and outfit.parts or {}) do
-        if type(part) == 'table' and allowedPart[tonumber(part.id)] then
-            table.insert(clean.outfit.parts, {
-                id = math.floor(tonumber(part.id)),
-                drawable = whole(part.drawable, 0, 500, 0),
-                texture = whole(part.texture, 0, 100, 0),
-            })
-        end
-    end
-    for _, prop in ipairs(type(outfit.props) == 'table' and outfit.props or {}) do
-        if type(prop) == 'table' and allowedProp[tonumber(prop.id)] then
-            table.insert(clean.outfit.props, {
-                id = math.floor(tonumber(prop.id)),
-                drawable = whole(prop.drawable, -1, 500, -1),
-                texture = whole(prop.texture, 0, 100, 0),
-            })
-        end
-    end
+    clean.outfit = FrameOS.cleanOutfit(p.outfit)
     return clean
 end
 
@@ -171,3 +177,21 @@ function FrameOS.characterName(source)
     end
     return nil
 end
+
+-- /saveclothes: saves what you are wearing right now as your character's outfit. admins only, and only
+-- while Config.testCommands is on. it is how the starter outfits in data/character.lua get tuned,
+-- until the clothing stores do this properly.
+FrameOS.onAsk('saveClothes', function(source, outfit)
+    local d = FrameOS.getPlayer(source)
+    if not (Config.testCommands and FrameOS.isAdmin(source)) then
+        return no('Admins only')
+    end
+    if not d.character then
+        return no('You have no character yet')
+    end
+    d.character.outfit = FrameOS.cleanOutfit(outfit)
+    FrameOS.markDirty(source)
+    FrameOS.log('character', source, 'saved the outfit they are wearing')
+    FrameOS.push(source)
+    return { ok = true }
+end, { every = 1000 })

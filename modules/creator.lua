@@ -459,6 +459,15 @@ end
 
 FrameOS.testCommand('creator', 'opens the character creator again (admins)', function()
     CreateThread(function()
-        FrameOS.openCreator(FrameOS.data.character ~= nil)
+        local editing = FrameOS.data.character ~= nil
+        if editing then
+            -- the server only lets admins change a saved character, so say so before the menu opens
+            local ok, info = FrameOS.ask('status')
+            if not (ok and info.admin) then
+                FrameOS.notify('Only admins can change a saved character. Run /myid and put the id in local.lua')
+                return
+            end
+        end
+        FrameOS.openCreator(editing)
     end)
 end)
